@@ -114,59 +114,66 @@ function Cadastro() {
             </div>
 
             <div className="Cadastro">
-                <div className="form-header-text-cadastro">
-                    <h2>Cadastro</h2>
-                    <p>Preencha os dados da instituição</p>
-                </div>
+                
                 <form onSubmit={handleSubmit} className="formCadastro">
-                    <div className="dadosCadGeral">
-                        <div className="dadosCad1">
-                            <div className="input-container">
-                                <Input id="nome" label="Nome" type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-                                <UserPen size={18} />
-                            </div>
-                            <div className="input-container">
-                                <Input id="cnpj" label="CNPJ" type="text" placeholder="CNPJ" value={cnpj} onChange={(e) => setCnpj(e.target.value)} required />
-                                <IdCard size={18} />
-                            </div>
-                            <div className="input-container">
-                                <Input id="email" label="E-mail" type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                                <Mail size={18} />
-                            </div>
-                            <div className="input-container">
-                                <Input id="telefone" label="Telefone" type="text" placeholder="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
-                                <Smartphone size={18} />
-                            </div>
-                        </div>
 
-                        <div className="dadosCad2">
-                            <div className="input-container">
-                                <Input id="bairro" label="Bairro" type="text" placeholder="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} required />
-                                <Map size={18} />
+                    <div className="w-full flex flex-col items-start gap-3">
+                        
+                        <div className="w-full self-start flex flex-col items-start text-left">
+                            <h2 className="font-semibold text-[32px] text-brand-teal leading-tight">Cadastro</h2>
+                            <p className="text-brand-gray font-light text-[14px]">Preencha os dados da instituição</p>
+                        </div>
+                        
+                        <div className="dadosCadGeral w-full">
+                            <div className="dadosCad1">
+                                <div className="input-container">
+                                    <Input id="nome" label="Nome" type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+                                    <UserPen size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input id="cnpj" label="CNPJ" type="text" placeholder="CNPJ" value={cnpj} onChange={(e) => setCnpj(e.target.value)} required />
+                                    <IdCard size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input id="email" label="E-mail" type="email" placeholder="E-mail" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                                    <Mail size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input id="telefone" label="Telefone" type="text" placeholder="Telefone" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
+                                    <Smartphone size={18} />
+                                </div>
                             </div>
-                            <div className="input-container">
-                                <Input id="cidade" label="Cidade" type="text" placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
-                                <Building2 size={18} />
-                            </div>
-                            <div className="input-container">
-                                <Input id="rua" label="Rua" type="text" placeholder="Rua" value={rua} onChange={(e) => setRua(e.target.value)} required />
-                                <StretchVertical size={18} />
-                            </div>
-                            <div className="input-container">
-                                <Input
-                                    id="senha"
-                                    label="Senha"
-                                    type={verSenha ? "text" : "password"}
-                                    placeholder="Senha"
-                                    value={senha}
-                                    onChange={(e) => setSenha(e.target.value)}
-                                    required
-                                />
-                                <div className="icon-container-password" onClick={toggleSenha}>
-                                    {verSenha ? <Eye size={18} /> : <EyeClosed size={18} />}
+
+                            <div className="dadosCad2">
+                                <div className="input-container">
+                                    <Input id="bairro" label="Bairro" type="text" placeholder="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} required />
+                                    <Map size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input id="cidade" label="Cidade" type="text" placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
+                                    <Building2 size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input id="rua" label="Rua" type="text" placeholder="Rua" value={rua} onChange={(e) => setRua(e.target.value)} required />
+                                    <StretchVertical size={18} />
+                                </div>
+                                <div className="input-container">
+                                    <Input
+                                        id="senha"
+                                        label="Senha"
+                                        type={verSenha ? "text" : "password"}
+                                        placeholder="Senha"
+                                        value={senha}
+                                        onChange={(e) => setSenha(e.target.value)}
+                                        required
+                                    />
+                                    <div className="icon-container-password" onClick={toggleSenha}>
+                                        {verSenha ? <Eye size={18} /> : <EyeClosed size={18} />}
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
 
                     <UploadImagem
@@ -193,7 +200,7 @@ function Cadastro() {
 
             </div>
 
-        </div>
+        </div> 
     )
 }
 
