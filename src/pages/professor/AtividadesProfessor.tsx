@@ -1,18 +1,16 @@
 import { useState, useRef } from "react";
-import { ClipboardList, Upload, Calendar, PenLine, X, Send, LibraryBig } from "lucide-react";
+import { ClipboardList, Upload, Calendar, PenLine, X, Send, LibraryBig, ChevronDown } from "lucide-react";
 import LayoutBaseProf from "../../components/calendar/layout/LayoutBaseProf";
 import InfoHeader from "../../components/escola/InfoHeader";
 
-async function enviarPlanoManual(dataAula: string, titulo: string, detalhamento: string) {
-  await new Promise((resolve) => setTimeout(resolve, 1500))
-
-  console.log("Plano manual enviado:", { dataAula, titulo, detalhamento })
+async function enviarPlanoManual(dataAula: string, turma: string, titulo: string, detalhamento: string) {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  console.log("Plano manual enviado:", { dataAula, turma, titulo, detalhamento });
 }
 
-async function enviarPlanoAnexo(dataAula: string, arquivo: File) {
-  await new Promise((resolve) => setTimeout(resolve, 1500))
-
-  console.log("Plano por anexo enviado:", { dataAula, arquivo: arquivo.name })
+async function enviarPlanoAnexo(dataAula: string, turma: string, arquivo: File) {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  console.log("Plano por anexo enviado:", { dataAula, turma, arquivo: arquivo.name });
 }
 
 export default function PlanoAula() {
@@ -21,6 +19,7 @@ export default function PlanoAula() {
   const inputArquivoRef = useRef<HTMLInputElement>(null);
 
   const [dataAula, setDataAula] = useState('');
+  const [turma, setTurma] = useState('');
   const [titulo, setTitulo] = useState('');
   const [detalhamento, setDetalhamento] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -31,6 +30,11 @@ export default function PlanoAula() {
 
     if (!dataAula) {
       setErro('Preencha a data da aula.');
+      return;
+    }
+
+    if (!turma) {
+      setErro('Selecione uma turma.');
       return;
     }
 
@@ -48,21 +52,22 @@ export default function PlanoAula() {
 
     try {
       if (modo === 'manual') {
-        await enviarPlanoManual(dataAula, titulo, detalhamento)
+        await enviarPlanoManual(dataAula, turma, titulo, detalhamento);
       } else {
-        await enviarPlanoAnexo(dataAula, arquivoSelecionado!)
+        await enviarPlanoAnexo(dataAula, turma, arquivoSelecionado!);
       }
 
-      setDataAula('')
-      setTitulo('')
-      setDetalhamento('')
-      setArquivoSelecionado(null)
+      setDataAula('');
+      setTurma('');
+      setTitulo('');
+      setDetalhamento('');
+      setArquivoSelecionado(null);
 
-      alert('Plano enviado com sucesso!')
+      alert('Plano enviado com sucesso!');
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro inesperado')
+      setErro(err instanceof Error ? err.message : 'Erro inesperado');
     } finally {
-      setCarregando(false)
+      setCarregando(false);
     }
   }
 
@@ -139,6 +144,14 @@ export default function PlanoAula() {
               </div>
             )}
           </div>
+
+          {/*<div className="w-full relative my-3">
+            <select
+              value={turma}
+              onChange={(e) => setTurma(e.target.value)}
+              className="w-full px-4 py-2.5 bg-white border border-[#004D47] rounded-lg text-sm text-gray-700 appearance-none focus:outline-none focus:ring-1 focus:ring-[#004D47] cursor-pointer"
+           >*/} 
+             
 
           {modo === 'manual' && (
             <div className="planoFormGroup full">
