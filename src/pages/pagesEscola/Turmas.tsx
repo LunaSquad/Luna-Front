@@ -20,12 +20,13 @@ type Turma = {
   qtdAlunos: number;
 };
 
-function Turmas() {
+function Turmas() { 
   const [turmas, setTurmas] = useState<Turma[]>([])
   const [busca, setBusca] = useState("")
   const [modalAberto, setModalAberto] = useState(false)
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false)
   const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null)
+
 
   const carregarTurmas = async () => {
     try {
@@ -145,7 +146,9 @@ function Turmas() {
       <Table columns={columns} data={turmasFiltradas} />
 
       <ModalTurma isOpen={modalAberto} onClose={() => setModalAberto(false)}>
-        <div className="logoTurma"><Users size={24}/></div>
+        <div className="logoTurma">
+          <Users size={24}/>
+        </div>
         <FormTurma
           dados={turmaSelecionada}
           onClose={() => setModalAberto(false)}

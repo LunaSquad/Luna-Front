@@ -7,7 +7,7 @@ import Button from "../../components/escola/button";
 import MeuCalendario from "../../components/calendar/MeuCalendario";
 import EventsList from "../../components/escola/EventsInput";
 import ModalEvents from "../modals/ModalEvents";
-import LayoutBaseProf from "../../components/calendar/layout/LayoutBaseProf";
+import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import { api } from "../../services/api";
 
 interface Evento {
