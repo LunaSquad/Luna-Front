@@ -1,7 +1,18 @@
 import { useState, useRef } from "react";
 import { ClipboardList, Upload, Calendar, PenLine, X, Send, LibraryBig, ChevronDown } from "lucide-react";
-import LayoutBaseProf from "../../components/calendar/layout/LayoutBaseProf";
+import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import InfoHeader from "../../components/escola/InfoHeader";
+
+type Turma = {
+  _id: string;
+  nome: string;
+  professorId?: {
+    _id: string;
+    nome: string;
+    sobrenome: string;
+  };
+  qtdAlunos: number;
+};
 
 async function enviarPlanoManual(dataAula: string, turma: string, titulo: string, detalhamento: string) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
@@ -24,6 +35,34 @@ export default function PlanoAula() {
   const [detalhamento, setDetalhamento] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
+
+const turmasMock: Turma[] = [
+  {
+    _id: "1",
+    nome: "Desenvolvimento Web Avançado",
+    professorId: {
+      _id: "p1",
+      nome: "Carlos",
+      sobrenome: "Silva",
+    },
+    qtdAlunos: 25,
+  },
+  {
+    _id: "2",
+    nome: "Banco de Dados NoSQL",
+    professorId: {
+      _id: "p2",
+      nome: "Ana",
+      sobrenome: "Souza",
+    },
+    qtdAlunos: 18,
+  },
+  {
+    _id: "3",
+    nome: "Introdução ao UI/UX Design",
+    qtdAlunos: 30,
+  },
+];
 
   async function handleEnviar() {
     setErro('');
@@ -128,6 +167,7 @@ export default function PlanoAula() {
               </div>
             </div>
 
+
             {modo === 'manual' && (
               <div className="planoFormGroup">
                 <label className="planoFormLabel">Conteúdo Programático (Título)</label>
@@ -145,13 +185,31 @@ export default function PlanoAula() {
             )}
           </div>
 
-          {/*<div className="w-full relative my-3">
+          <div className="w-full relative my-3">
+
+            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-luna-teal">
+              <ChevronDown size={24} />
+            </div>
+
             <select
               value={turma}
               onChange={(e) => setTurma(e.target.value)}
-              className="w-full px-4 py-2.5 bg-white border border-[#004D47] rounded-lg text-sm text-gray-700 appearance-none focus:outline-none focus:ring-1 focus:ring-[#004D47] cursor-pointer"
-           >*/} 
-             
+              className="w-full h-12 !pl-4 !pr-12 bg-white border text-gray-400 border-luna-teal rounded-lg text-md font-sans font-light appearance-none focus:outline-none focus:ring-1 focus:ring-luna-teal cursor-pointer"
+              required
+            >
+
+              <option value="" disabled>
+                Selecione uma turma
+              </option>
+
+              {turmasMock.map((tm) => (
+                <option key={tm._id} value={tm._id} className="text-luna-teal font-sans font-light bg-white">{tm.nome}</option>
+              ))}
+
+            </select>
+
+          </div>
+
 
           {modo === 'manual' && (
             <div className="planoFormGroup full">

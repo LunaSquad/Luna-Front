@@ -11,24 +11,24 @@ export default function InfoHeader({
     icon, title, subtitle
 } : InfoHeaderProps){
         return(
-            <div className="infoHeader">
-                    <div className="TitleInformations">
-                        <div className="infoHeaderIcon">
+            <div className="flex w-full items-center justify-between">
+                    <div className="flex items-center gap-3">
+                        <div className="flex w-12 h-12 items-center justify-center rounded-full bg-luna-icon-bg text-luna-teal shrink">
                             {icon}
                         </div>
 
-                        <div className="infoHeaderText">
-                            <h2 className="infoHeaderTitle">
+                        <div className="flex flex-col gap-1">
+                            <h2 className="m-0 font-sans font-semibold text-xl text-black">
                                 {title}
                             </h2>
 
-                            <p className="infoHeaderSubtitle">
+                            <p className="m-0 font-sans font-light text-sm text-black">
                                 {subtitle}
                             </p>
                         </div>
                     </div>
 
-                    <div className="LogoHeader">
+                    <div className="w-14">
                         <img src={logo} alt="" />
                     </div>
             </div>

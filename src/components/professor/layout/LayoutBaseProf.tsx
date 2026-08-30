@@ -1,5 +1,5 @@
 import { useState } from "react";
-import NavBarProf from "../../professor/NavBarProf";
+import NavBarProf from "../NavBarProf";
 
 type LayoutProps = {
     children: React.ReactNode
