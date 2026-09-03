@@ -2441,9 +2441,9 @@ body {
   }
 
   /* ── CADASTRO ───────────────────────────────── */
-  .containerCadastro {
-    justify-content: space-between;
-  }
+    .containerCadastro {
+      justify-content: space-between;
+    }
 
   .Cadastro {
     position: absolute;
