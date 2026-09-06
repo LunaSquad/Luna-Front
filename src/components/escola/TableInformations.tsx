@@ -1,7 +1,7 @@
 import React from "react"
 
 type Column<T> = {
-    header: string
+    header: string | React.ReactNode
     accessor: keyof T | string
     render?: (row: T) => React.ReactNode
 }
