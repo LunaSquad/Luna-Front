@@ -14,14 +14,14 @@ type Turma = {
   qtdAlunos: number;
 };
 
-async function enviarPlanoManual(dataAula: string, turma: string, titulo: string, detalhamento: string) {
+async function enviarPlanoManual(dataAula: string, dataFechamento: string, horarioFechamento: string ,turma: string, titulo: string, detalhamento: string) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano manual enviado:", { dataAula, turma, titulo, detalhamento });
+  console.log("Plano manual enviado:", { dataAula, dataFechamento, horarioFechamento, turma, titulo, detalhamento });
 }
 
-async function enviarPlanoAnexo(dataAula: string, turma: string, arquivo: File) {
+async function enviarPlanoAnexo(dataAula: string, dataFechamento: string, horarioFechamento:string ,turma: string, arquivo: File) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano por anexo enviado:", { dataAula, turma, arquivo: arquivo.name });
+  console.log("Plano por anexo enviado:", { dataAula, dataFechamento, horarioFechamento, turma, arquivo: arquivo.name });
 }
 
 export default function PlanoAula() {
@@ -30,47 +30,78 @@ export default function PlanoAula() {
   const inputArquivoRef = useRef<HTMLInputElement>(null);
 
   const [dataAula, setDataAula] = useState('');
+  const [dataFechamento, setDataFechamento] = useState('');
+  const [horarioFechamento, setHorarioFechamento] = useState('');
   const [turma, setTurma] = useState('');
   const [titulo, setTitulo] = useState('');
   const [detalhamento, setDetalhamento] = useState('');
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
 
-const turmasMock: Turma[] = [
-  {
-    _id: "1",
-    nome: "Desenvolvimento Web Avançado",
-    professorId: {
-      _id: "p1",
-      nome: "Carlos",
-      sobrenome: "Silva",
+  const turmasMock: Turma[] = [
+    {
+      _id: "1",
+      nome: "Desenvolvimento Web Avançado",
+      professorId: {
+        _id: "p1",
+        nome: "Carlos",
+        sobrenome: "Silva",
+      },
+      qtdAlunos: 25,
     },
-    qtdAlunos: 25,
-  },
-  {
-    _id: "2",
-    nome: "Banco de Dados NoSQL",
-    professorId: {
-      _id: "p2",
-      nome: "Ana",
-      sobrenome: "Souza",
+    {
+      _id: "2",
+      nome: "Banco de Dados NoSQL",
+      professorId: {
+        _id: "p2",
+        nome: "Ana",
+        sobrenome: "Souza",
+      },
+      qtdAlunos: 18,
     },
-    qtdAlunos: 18,
-  },
-  {
-    _id: "3",
-    nome: "Introdução ao UI/UX Design",
-    qtdAlunos: 30,
-  },
-];
+    {
+      _id: "3",
+      nome: "Introdução ao UI/UX Design",
+      qtdAlunos: 30,
+    },
+  ];
+
+  const formatarMascaraData = (valor: string) => {
+    let v = valor.replace(/\D/g, "");
+    if (v.length > 8) v = v.slice(0, 8);
+    if (v.length > 4) v = v.replace(/^(\d{2})(\d{2})(\d{1,4}).*/, "$1/$2/$3");
+    else if (v.length > 2) v = v.replace(/^(\d{2})(\d{1,2}).*/, "$1/$2");
+    return v;
+  };
+
+  const formatarMascaraHora = (valor: string) => {
+    let v = valor.replace(/\D/g, "");
+    if (v.length > 4) v = v.slice(0, 4);
+    if (v.length > 2) {
+      v = v.replace(/^(\d{2})(\d{1,2}).*/, "$1:$2");
+    }
+    return v;
+  };
 
   async function handleEnviar() {
     setErro('');
 
-    if (!dataAula) {
-      setErro('Preencha a data da aula.');
+    if (!dataAula || (dataAula.length !== 10)) {
+      setErro('Preencha a data da aula completa DD/MM/YY.');
       return;
     }
+
+    if (!dataFechamento || (dataFechamento.length !== 10)) {
+      setErro('Preencha a data de Fechamento completa DD/MM/YY.');
+      return;
+    }
+
+
+    if (!horarioFechamento || (horarioFechamento.length !== 5)) {
+      setErro('Preencha o horário de fechamento completo (HH:MM).');
+      return;
+    }
+
 
     if (!turma) {
       setErro('Selecione uma turma.');
@@ -90,13 +121,24 @@ const turmasMock: Turma[] = [
     setCarregando(true);
 
     try {
+
+      const converterParaBackend = (dataPtBr: string) => {
+        const [dia, mes, ano] = dataPtBr.split('/');
+        return `${ano}-${mes}-${dia}`;
+      };
+
+      const dataAulaFormatada = converterParaBackend(dataAula);
+      const dataFechamentoFormatada = converterParaBackend(dataFechamento);
+
       if (modo === 'manual') {
-        await enviarPlanoManual(dataAula, turma, titulo, detalhamento);
+        await enviarPlanoManual(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, titulo, detalhamento);
       } else {
-        await enviarPlanoAnexo(dataAula, turma, arquivoSelecionado!);
+        await enviarPlanoAnexo(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, arquivoSelecionado!);
       }
 
       setDataAula('');
+      setDataFechamento('');
+      setHorarioFechamento('');
       setTurma('');
       setTitulo('');
       setDetalhamento('');
@@ -118,68 +160,74 @@ const turmasMock: Turma[] = [
         subtitle="Envie um novo plano de aula"
       />
 
-      <div className="planoContainer">
+      <div className="flex flex-col w-full !mt-3 gap-4">
 
-        <div className="planoOpcoes">
+        <div className="flex gap-6 w-full">
           <div
-            className={`planoOpcaoCard ${modo === 'manual' ? 'ativo' : ''}`}
+            className={`flex items-center gap-4 flex-1 !py-6 !px-5 rounded-xl border-2 cursor-pointer transition-all duration-200 ease-in-out hover:border-luna-teal ${modo === 'manual'
+              ? 'border-luna-teal bg-[#f0fafa]'
+              : 'border-[#e0e0e0] bg-white'
+              }`}
             onClick={() => setModo('manual')}
           >
-            <div className="planoOpcaoIcone">
-              <ClipboardList size={24} />
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-luna-teal text-white shrink-0">
+              <ClipboardList size={26} />
             </div>
-            <div className="planoOpcaoTexto">
-              <span className="planoOpcaoTitulo">Escreva manualmente</span>
-              <span className="planoOpcaoDesc">Crie o plano com título, descrição e data</span>
+            <div className="flex flex-col gap-1">
+              <span className="font-sans font-bold text-luna-teal text-md">Escreva manualmente</span>
+              <span className="font-sans text-sm font-light text-luna-font-description">Crie o plano com título, descrição e data</span>
             </div>
-            {modo === 'manual' && <div className="planoOpcaoDot" />}
+            {modo === 'manual' && <div className="w-2 h-2 rounded-full bg-luna-teal !ml-auto self-start" />}
           </div>
 
           <div
-            className={`planoOpcaoCard ${modo === 'anexo' ? 'ativo' : ''}`}
+            className={`flex items-center gap-4 flex-1 !py-6 !px-5 rounded-xl border-2 cursor-pointer transition-all duration-200 ease-in-out hover:border-luna-teal ${modo === 'anexo'
+              ? 'border-luna-teal bg-[#f0fafa]'
+              : 'border-[#e0e0e0] bg-white'
+              }`}
             onClick={() => setModo('anexo')}
           >
-            <div className="planoOpcaoIcone">
+            <div className="flex items-center justify-center w-14 h-14 rounded-xl bg-luna-teal text-white shrink-0">
               <Upload size={24} />
             </div>
-            <div className="planoOpcaoTexto">
-              <span className="planoOpcaoTitulo">Anexe o arquivo</span>
-              <span className="planoOpcaoDesc">Faça um upload de um arquivo já pronto</span>
+            <div className="flex flex-col gap-1">
+              <span className="font-sans font-bold text-luna-teal text-md">Anexe o arquivo</span>
+              <span className="font-sans text-sm font-light text-luna-font-description">Faça um upload de um arquivo já pronto</span>
             </div>
-            {modo === 'anexo' && <div className="planoOpcaoDot" />}
+            {modo === 'anexo' && <div className="w-2 h-2 rounded-full bg-luna-teal !ml-auto self-start" />}
           </div>
         </div>
 
-        <div className="planoFormCard">
+        <div className="flex flex-col rounded-lg bg-white !py-8 !px-10 gap-6 shadow-luna-shadow shadow-sm">
 
-          <div className="planoFormRow">
-            <div className="planoFormGroup">
-              <label className="planoFormLabel">Data da aula</label>
-              <div className="planoInputWrapper">
+          <div className="flex w-full gap-8">
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="font-sans font-bold text-sm text-luna-teal">Data da aula</label>
+              <div className="relative flex items-end">
                 <input
-                  className="planoFormInput"
+                  className="border-0 border-b-luna-teal border-b-2 bg-transparent font-sans font-light text-sm text-black !py-2 w-full focus:outline-none placeholder:text-gray-400"
                   type="text"
                   placeholder="Ex: 00/00/0000"
                   value={dataAula}
-                  onChange={(e) => setDataAula(e.target.value)}
+                  onChange={(e) => setDataAula(formatarMascaraData(e.target.value))}
                 />
-                <Calendar size={18} className="planoInputIcon" />
+                <Calendar size={18} className="absolute right-0 bottom-3 text-luna-teal pointer-events-none" />
               </div>
             </div>
 
 
             {modo === 'manual' && (
-              <div className="planoFormGroup">
-                <label className="planoFormLabel">Conteúdo Programático (Título)</label>
-                <div className="planoInputWrapper">
+              <div className="flex flex-col gap-2 flex-1">
+                <label className="font-sans font-bold text-sm text-luna-teal">Conteúdo Programático (Título)</label>
+                <div className="relative flex items-end">
                   <input
-                    className="planoFormInput"
+                    className="border-0 border-b-luna-teal border-b-2 bg-transparent font-sans font-light text-sm text-black !py-2 w-full focus:outline-none placeholder:text-gray-400"
                     type="text"
                     placeholder="Título do conteúdo"
                     value={titulo}
                     onChange={(e) => setTitulo(e.target.value)}
                   />
-                  <PenLine size={18} className="planoInputIcon" />
+                  <PenLine size={18} className="absolute right-0 bottom-3 text-luna-teal pointer-events-none" />
                 </div>
               </div>
             )}
@@ -210,25 +258,55 @@ const turmasMock: Turma[] = [
 
           </div>
 
+          <div className="flex w-full gap-8">
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="font-sans font-bold text-sm text-luna-teal">Data de Fechamento da Atividade</label>
+              <div className="relative flex items-end">
+                <input
+                  className="border-0 border-b-luna-teal border-b-2 bg-transparent font-sans font-light text-sm text-black !py-2 w-full focus:outline-none placeholder:text-gray-400"
+                  type="text"
+                  placeholder="Ex: 00/00/0000"
+                  value={dataFechamento}
+                  onChange={(e) => setDataFechamento(formatarMascaraData(e.target.value))}
+                />
+                <Calendar size={18} className="absolute right-0 bottom-3 text-luna-teal pointer-events-none" />
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 flex-1">
+              <label className="font-sans font-bold text-sm text-luna-teal">Horário de Fechamento da Atividade</label>
+              <div className="relative flex items-end">
+                <input
+                  className="border-0 border-b-luna-teal border-b-2 bg-transparent font-sans font-light text-sm text-black !py-2 w-full focus:outline-none placeholder:text-gray-400"
+                  type="text"
+                  placeholder="EX: 17:59"
+                  value={horarioFechamento}
+                  onChange={(e) => setHorarioFechamento(formatarMascaraHora(e.target.value))}
+                />
+                <PenLine size={18} className="absolute right-0 bottom-3 text-luna-teal pointer-events-none" />
+              </div>
+            </div>
+          </div>
+
 
           {modo === 'manual' && (
-            <div className="planoFormGroup full">
-              <label className="planoFormLabel">Conteúdo Programático (Detalhamento)</label>
-              <div className="planoTextareaWrapper">
+            <div className="flex flex-col gap-4 flex-1">
+              <label className="font-sans font-bold text-sm text-luna-teal">Conteúdo Programático (Detalhamento)</label>
+              <div className="relative">
                 <textarea
-                  className="planoFormTextarea"
+                  className="border-2 border-luna-teal rounded-lg bg-transparent font-sans font-light text-sm text-black !p-3 w-full min-h-35 resize-y focus:outline-none placeholder:text-gray-400"
                   placeholder="Detalhamento do conteúdo"
                   value={detalhamento}
                   onChange={(e) => setDetalhamento(e.target.value)}
                 />
-                <PenLine size={18} className="planoTextareaIcon" />
+                <PenLine size={18} className="absolute bottom-4 right-4 text-luna-teal pointer-events-none" />
               </div>
             </div>
           )}
 
           {modo === 'anexo' && (
             <div
-              className="planoUploadArea"
+              className="flex flex-col items-center justify-center gap-4 border-2 border-dashed border-luna-teal rounded-lg !py-6 !px-2 bg-white cursor-pointer"
               onClick={() => inputArquivoRef.current?.click()}
             >
               <input
@@ -240,11 +318,13 @@ const turmasMock: Turma[] = [
                   if (arquivo) setArquivoSelecionado(arquivo);
                 }}
               />
-              <Upload size={36} className="planoUploadIcone" />
-              <p className="planoUploadTexto">
+              <div className="flex items-center justify-center bg-luna-teal rounded-lg !p-4">
+                <Upload size={34} className="text-white" strokeWidth={2} />
+              </div>
+              <p className="font-sans font-medium text-sm text-gray-700 text-center">
                 {arquivoSelecionado
                   ? arquivoSelecionado.name
-                  : <><span>Clique ou arraste o arquivo</span><br />PDF, DOC, DOCX ou imagens</>
+                  : <><span className="font-bold text-luna-teal cursor-pointer">Clique ou arraste o arquivo</span><br />PDF, DOC, DOCX ou imagens</>
                 }
               </p>
             </div>
@@ -256,15 +336,15 @@ const turmasMock: Turma[] = [
           <p style={{ color: 'red', fontFamily: 'Inter', fontSize: 14 }}>{erro}</p>
         )}
 
-        <div className="planoFooter">
-          <button className="planoBtnCancelar" onClick={() => window.history.back()}>
-            <div className="iconCancel">
+        <div className="flex justify-end gap-4 !mt-2 h-12">
+          <button className="flex items-center gap-4 !px-6 rounded-xl font-sans text-md font-bold text-luna-teal border-2 border-gray-300 cursor-pointer bg-white transition duration-300 ease hover:border-luna-teal " onClick={() => window.history.back()}>
+            <div className="flex justify-center items-center bg-luna-teal w-6 h-6 rounded-full text-white text-center">
               <X size={18} />
             </div>
             Cancelar
           </button>
           <button
-            className="planoBtnEnviar"
+            className="flex items-center gap-4 !px-6 border-none rounded-lg bg-luna-teal font-sans text-md font-bold text-white cursor-pointer transition duration-300 ease hover:opacity-[0.9]"
             onClick={handleEnviar}
             disabled={carregando}
           >

@@ -4,9 +4,9 @@ import { Users, BookOpen, FileText, ChevronRight } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
-import { Row } from "react-day-picker";
 import Table from "../../components/escola/TableInformations";
 import fotoMariaClara from "./imagensAlunos/maria-clara.jpg";
+import ConviteAluno from "../../components/professor/ConviteAluno";
 
 type SituacaoAluno = "Excelente" | "Atenção" | "Bom";
 
@@ -29,6 +29,8 @@ export default function TurmaEspecifica() {
     const [abaAtiva, setAbaAtiva] = useState('alunos')
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
+    // utilizar o link original
+    const linkDeConvite = "https://sua-plataforma.com/turma-3anoA-luna";
 
     const dadosCards = [
         { id: 1, icone: <Users size={24} />, valor: "10", label: "ALUNOS", alerta: false },
@@ -92,23 +94,33 @@ export default function TurmaEspecifica() {
             ),
         },
         {
-            header: "RA",
+            header: (
+                <div className="flex justify-center items-center w-full">
+                    RA
+                </div>
+            ),
             accessor: "ra",
             render: (row: Aluno) => (
-                <span className="inline-block font-sans font-medium">
-                    {row.ra}
-                </span>
+                <div className="flex justify-center items-center w-full">
+                    <span className="inline-block font-sans font-medium">
+                        {row.ra}
+                    </span>
+                </div>
             ),
         },
         {
-            header: "Desempenho",
+            header: (
+                <div className="flex justify-center w-full">
+                    Desempenho
+                </div>
+            ),
             accessor: "desempenho",
             render: (row: Aluno) => {
 
                 const DesempenhoBaixo = row.desempenho < 50;
 
                 return (
-                    <div className="w-full flex justify-between items-center gap-4">
+                    <div className="w-full flex justify-center items-center gap-4">
                         <div className="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                             <div className={`h-full rounded-full ${DesempenhoBaixo ? "bg-red-500" : "bg-luna-teal"}`}
                                 style={{ width: `${row.desempenho}%` }}
@@ -124,7 +136,11 @@ export default function TurmaEspecifica() {
             },
         },
         {
-            header: "Situação",
+            header: (
+                <div className="flex justify-center w-full">
+                    Situação
+                </div>
+            ),
             accessor: "situacao",
             render: (row: Aluno) => (
                 <div className={`w-full flex items-center justify-center font-sans font-semibold text-md rounded-lg border border-luna-teal !py-0.5 ${row.situacao == "Atenção" ? "text-red-500 bg-red-500/20 border-red-500" : "text-luna-teal bg-luna-teal/20 border-luna-teal"}`}>
@@ -208,6 +224,7 @@ export default function TurmaEspecifica() {
                 buttonLabel="Adicionar Alunos"
                 onButtonClick={() => {
                     setModalAberto(true)
+                    setAlunoSelecionado(null)
                 }}
                 abaAtiva={abaAtiva}
                 setAbaAtiva={setAbaAtiva}
@@ -217,7 +234,7 @@ export default function TurmaEspecifica() {
                 {abaAtiva === 'alunos' && (
                     <div className="animate-in fade-in duration-500 flex flex-col h-full justify-between">
 
-                        <Table columns={columns} data={alunosPagina} />
+                        <Table columns={columns as any} data={alunosPagina} />
 
                         {totalPaginas > 1 && (
                             <div className="flex items-center justify-center w-full !mt-6">
@@ -226,18 +243,18 @@ export default function TurmaEspecifica() {
                                     <button
                                         onClick={() => setPaginaAtual(prev => Math.max(prev - 1, 1))}
                                         disabled={paginaAtual === 1}
-                                        className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
                                         Anterior
                                     </button>
-                                    
+
                                     {Array.from({ length: totalPaginas }).map((_, index) => (
                                         <button
                                             key={index}
                                             onClick={() => setPaginaAtual(index + 1)}
                                             className={`w-8 h-8 flex items-center justify-center text-sm font-semibold rounded-md transition-colors ${paginaAtual === index + 1
-                                                    ? "bg-luna-teal text-white"
-                                                    : "text-gray-600 hover:bg-gray-100"
+                                                ? "bg-luna-teal text-white"
+                                                : "text-gray-600 hover:bg-gray-100"
                                                 }`}
                                         >
                                             {index + 1}
@@ -247,7 +264,7 @@ export default function TurmaEspecifica() {
                                     <button
                                         onClick={() => setPaginaAtual(prev => Math.min(prev + 1, totalPaginas))}
                                         disabled={paginaAtual === totalPaginas}
-                                        className="px-3 py-1 text-sm font-semibold text-luna-teal bg-luna-teal/10 rounded-md disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                        className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                     >
                                         Próximo
                                     </button>
@@ -267,6 +284,14 @@ export default function TurmaEspecifica() {
                 )}
             </div>
 
+
+            <ConviteAluno
+
+                isOpen={modalAberto}
+                onClose={() => setModalAberto(false)}
+                inviteLink={linkDeConvite}
+
+            />
 
         </LayoutBaseProf>
     )
