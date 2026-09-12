@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
+import { AxiosError } from "axios"
 import NavTitulo from "../components/escola/NavbarTitulo"
 import Button from "../components/escola/button"
 import Input from "../components/escola/input"
@@ -48,7 +49,6 @@ function Cadastro() {
             form.append("dadosUsuario[email]", email)
             form.append("dadosUsuario[senha]", senha)
 
-            // 5. Imagem
             if (imagem) form.append("foto", imagem)
 
             await api.post("/escolas", form, {
@@ -57,9 +57,10 @@ function Cadastro() {
 
             alert("Escola cadastrada com sucesso!")
             navigate("/")
-        } catch (err: any) {
-            console.error("Detalhes do erro:", err.response?.data?.detalhes)
-            setErro(err.response?.data?.erro || "Erro inesperado ao cadastrar")
+        } catch (err) {
+            const erroAxios = err as AxiosError<{ erro?: string; detalhes?: string }>
+            console.error("Detalhes do erro:", erroAxios.response?.data?.detalhes)
+            setErro(erroAxios.response?.data?.erro || "Erro inesperado ao cadastrar")
         } finally {
             setCarregando(false)
         }
@@ -99,16 +100,16 @@ function Cadastro() {
                 </div>
             </div>
 
-            <div className="flex-1 w-full flex flex-col items-start justify-start pl-8 lg:pl-12 -translate-y-8">
+            <div className="flex-1 w-full flex flex-col items-center justify-center pl-6! pr-6! lg:pl-8! lg:pr-12! xl:pl-10! xl:pr-40! -translate-y-8">
                 <form onSubmit={handleSubmit} className="w-full max-w-3xl flex flex-col items-center px-4">
-                    <div className="w-full flex flex-col gap-6">
+                    <div className="w-full flex flex-col gap-4">
                         <div className="w-full self-start flex flex-col items-start text-left">
                             <h2 className="font-semibold text-[32px] text-luna-teal leading-tight">Cadastro</h2>
                             <p className="text-brand-gray font-light text-[14px]">Preencha os dados da instituição</p>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-20 gap-y-5 w-full">
-                            <div className="flex flex-col gap-5">
+                        <div className="grid grid-cols-2 gap-x-20 gap-y-4 w-full">
+                            <div className="flex flex-col gap-4">
                                 <div className="input-container">
                                     <Input id="nome" label="Nome" type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
                                     <UserPen size={18} />
@@ -127,7 +128,7 @@ function Cadastro() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-5">
+                            <div className="flex flex-col gap-4">
                                 <div className="input-container">
                                     <Input id="bairro" label="Bairro" type="text" placeholder="Bairro" value={bairro} onChange={(e) => setBairro(e.target.value)} required />
                                     <Map size={18} />
@@ -158,27 +159,27 @@ function Cadastro() {
                         </div>
                     </div>
 
-                    <div className="mt-3.5! flex flex-col items-center w-full gap-6">
+                    <div className="mt-3! flex flex-col items-center w-full gap-2">
                         <UploadImagem
                             label="Imagem da Escola"
                             onChange={(file) => setImagem(file)}
                         />
-                    </div>
+                    </div> 
 
                     {erro && <p className="text-red-500 text-sm mt-2">{erro}</p>}
 
-                    <div className="mt-3.5! flex justify-center w-full">
+                    <div className="mt-7! flex justify-center w-full">
                         <Button
                             type="submit"
                             className="submitCadastrar w-full max-w-md"
                             disabled={carregando}
                         >
                             {carregando ? "Cadastrando..." : "Cadastrar"}
-                        </Button>
-                    </div>
+                        </Button>                                      
+                     </div>
                 </form>
 
-                <p className="mt-6! text-sm text-brand-gray self-start! text-center w-full max-w-3xl mx-auto">
+                <p className="mt-4! text-sm text-brand-gray text-center">
                     Já possui conta? <span><Link to="/" className="text-luna-teal font-semibold underline">Entrar!</Link></span>
                 </p>
             </div>

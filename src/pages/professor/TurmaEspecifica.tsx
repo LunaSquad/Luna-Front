@@ -7,6 +7,7 @@ import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
 import Table from "../../components/escola/TableInformations";
 import fotoMariaClara from "./imagensAlunos/maria-clara.jpg";
 import ConviteAluno from "../../components/professor/ConviteAluno";
+import ListaAtividades from "../../components/professor/ListaAtividades";
 
 type SituacaoAluno = "Excelente" | "Atenção" | "Bom";
 
@@ -221,10 +222,14 @@ export default function TurmaEspecifica() {
             </div>
 
             <AdicionaAlunos
-                buttonLabel="Adicionar Alunos"
+                buttonLabel={abaAtiva === 'alunos' ? 'Adicionar Alunos' : 'Adicionar Atividade'}
                 onButtonClick={() => {
-                    setModalAberto(true)
-                    setAlunoSelecionado(null)
+                    if (abaAtiva === 'alunos') {
+                        setModalAberto(true)
+                        setAlunoSelecionado(null)
+                    } else {
+                        console.log('Abrir Modal de atividade')
+                    }
                 }}
                 abaAtiva={abaAtiva}
                 setAbaAtiva={setAbaAtiva}
@@ -278,8 +283,7 @@ export default function TurmaEspecifica() {
 
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
-                        <h3 className="text-lg font-bold text-luna-teal">Atividades Pendentes</h3>
-                        <p className="text-gray-500 mt-2">Aqui vai aparecer a lista das 3 atividades...</p>
+                       <ListaAtividades />
                     </div>
                 )}
             </div>

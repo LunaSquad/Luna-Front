@@ -16,4 +16,4 @@ function Input({ label, id, ...props }: InputProps) {
   )
 }
 
-export default Input
+export default Input                          
