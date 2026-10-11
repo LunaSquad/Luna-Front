@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Users, BookOpen, FileText, ChevronRight } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
 import Table from "../../components/escola/TableInformations";
-import fotoMariaClara from "./imagensAlunos/maria-clara.jpg";
 import ConviteAluno from "../../components/professor/ConviteAluno";
 import ListaAtividades from "../../components/professor/ListaAtividades";
+import { api } from "../../services/api";
 
 type SituacaoAluno = "Excelente" | "Atenção" | "Bom";
 
@@ -16,20 +16,25 @@ type Aluno = {
     nome: string;
     avatarUrl: string;
     ra: string;
+    urlFotoLaudo?: string;
     desempenho: number;
     situacao: SituacaoAluno;
 };
 
-
 export default function TurmaEspecifica() {
+
+    const { id } = useParams();
 
     const [alunos, setAlunos] = useState<Aluno[]>([])
     const [modalAberto, setModalAberto] = useState(false)
     const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null)
     const navigate = useNavigate();
+    const location = useLocation();
+    const turma = location.state?.turma;
     const [abaAtiva, setAbaAtiva] = useState('alunos')
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
+    const [isLoading, setIsLoading] = useState(true)
     // utilizar o link original
     const linkDeConvite = "https://sua-plataforma.com/turma-3anoA-luna";
 
@@ -39,49 +44,22 @@ export default function TurmaEspecifica() {
         { id: 3, icone: <FileText size={24} />, valor: "3", label: "ATIVIDADES", alerta: false },
     ];
 
-    const dadosAlunosMock: Aluno[] = [
-        {
-            _id: "1",
-            nome: "Maria Clara",
-            avatarUrl: fotoMariaClara,
-            ra: "234585960",
-            desempenho: 90,
-            situacao: "Excelente",
-        },
-        {
-            _id: "2",
-            nome: "João Oliveira",
-            avatarUrl: fotoMariaClara,
-            ra: "289487567",
-            desempenho: 40,
-            situacao: "Atenção",
-        },
-        {
-            _id: "3",
-            nome: "Carol Silva",
-            avatarUrl: fotoMariaClara,
-            ra: "298574890",
-            desempenho: 50,
-            situacao: "Bom",
-        },
-        {
-            _id: "4",
-            nome: "Sofia Santos",
-            avatarUrl: fotoMariaClara,
-            ra: "285948678",
-            desempenho: 70,
-            situacao: "Bom",
-        },
-        {
-            _id: "5",
-            nome: "Fernando Silva",
-            avatarUrl: fotoMariaClara,
-            ra: "258741748",
-            desempenho: 98,
-            situacao: "Excelente",
-        },
-    ];
-
+    useEffect(() => {
+        const carregarAlunos = async () => {
+            setIsLoading(true);
+            try {
+                if (id) {
+                    const response = await api.getAlunosPorTurma(id) as { data: Aluno[] };
+                    setAlunos(response.data);
+                }
+            } catch (error) {
+                console.error("Erro ao carregar Alunos", error);
+            } finally {
+                setIsLoading(false)
+            }
+        };
+        carregarAlunos();
+    }, [id]);
 
     const columns = [
         {
@@ -106,6 +84,31 @@ export default function TurmaEspecifica() {
                     <span className="inline-block font-sans font-medium">
                         {row.ra}
                     </span>
+                </div>
+            ),
+        },
+        {
+            header: (
+                <div className="flex justify-center items-center w-full">
+                    Laudo
+                </div>
+            ),
+            accessor: "laudo",
+            render: (row: Aluno) => (
+                <div className="flex justify-center items-center w-full">
+                    {row.urlFotoLaudo ? (
+                        <a 
+                            href={row.urlFotoLaudo} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 text-luna-teal hover:text-[#004347] transition-colors cursor-pointer text-sm font-sans font-medium decoration-transparent hover:underline"
+                        >
+                            <FileText size={18} />
+                            Laudo
+                        </a>
+                    ) : (
+                        <span className="text-gray-400 font-sans font-medium">-</span>
+                    )}
                 </div>
             ),
         },
@@ -157,7 +160,6 @@ export default function TurmaEspecifica() {
                     <button
                         type="button"
                         onClick={() => {
-                            // navigate(`/alunos/${row._id}`);
                             alert(`Navegar para detalhes do aluno: ${row.nome} (ID: ${row._id})`);
                         }}
                         className="flex items-center justify-center w-8 h-8 rounded-full bg-luna-teal/15 text-luna-teal hover:bg-luna-teal/25 transition-colors cursor-pointer border-none"
@@ -173,8 +175,8 @@ export default function TurmaEspecifica() {
     const indiceUltimoItem = paginaAtual * itensPorPagina;
     const indicePrimeiroItem = indiceUltimoItem - itensPorPagina;
 
-    const alunosPagina = dadosAlunosMock.slice(indicePrimeiroItem, indiceUltimoItem);
-    const totalPaginas = Math.ceil(dadosAlunosMock.length / itensPorPagina);
+    const alunosPagina = alunos.slice(indicePrimeiroItem, indiceUltimoItem);
+    const totalPaginas = Math.ceil(alunos.length / itensPorPagina);
 
 
     return (
@@ -183,7 +185,9 @@ export default function TurmaEspecifica() {
 
             <div className="w-full flex justify-between !mt-4">
                 <div className="flex flex-col gap-6 w-90">
-                    <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">3º ano A</h2>
+                    <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
+                        {turma?.nome || "Turma não encontrada"}
+                    </h2>
                     <p className="m-0 font-sans font-light">Gerencie alunos, acompanhe atividades e desempenho.</p>
                 </div>
 
@@ -224,6 +228,7 @@ export default function TurmaEspecifica() {
             <AdicionaAlunos
                 buttonLabel={abaAtiva === 'alunos' ? 'Adicionar Alunos' : 'Adicionar Atividade'}
                 onButtonClick={() => {
+                    // passa como props de adiciona alunos e usa useState para trocar o valor aqui
                     if (abaAtiva === 'alunos') {
                         setModalAberto(true)
                         setAlunoSelecionado(null)
@@ -239,51 +244,59 @@ export default function TurmaEspecifica() {
                 {abaAtiva === 'alunos' && (
                     <div className="animate-in fade-in duration-500 flex flex-col h-full justify-between">
 
-                        <Table columns={columns as any} data={alunosPagina} />
-
-                        {totalPaginas > 1 && (
-                            <div className="flex items-center justify-center w-full !mt-6">
-                                <div className="flex items-center gap-2">
-
-                                    <button
-                                        onClick={() => setPaginaAtual(prev => Math.max(prev - 1, 1))}
-                                        disabled={paginaAtual === 1}
-                                        className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Anterior
-                                    </button>
-
-                                    {Array.from({ length: totalPaginas }).map((_, index) => (
-                                        <button
-                                            key={index}
-                                            onClick={() => setPaginaAtual(index + 1)}
-                                            className={`w-8 h-8 flex items-center justify-center text-sm font-semibold rounded-md transition-colors ${paginaAtual === index + 1
-                                                ? "bg-luna-teal text-white"
-                                                : "text-gray-600 hover:bg-gray-100"
-                                                }`}
-                                        >
-                                            {index + 1}
-                                        </button>
-                                    ))}
-
-                                    <button
-                                        onClick={() => setPaginaAtual(prev => Math.min(prev + 1, totalPaginas))}
-                                        disabled={paginaAtual === totalPaginas}
-                                        className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                                    >
-                                        Próximo
-                                    </button>
-                                </div>
-
+                        {isLoading ? (
+                            <div className="flex justify-center items-center py-10 text-luna-teal font-sans font-medium">
+                                Carregando alunos...
                             </div>
-                        )}
+                        ) : (
+                            <>
+                                <Table columns={columns as any} data={alunosPagina} />
 
+                                {totalPaginas > 1 && (
+                                    <div className="flex items-center justify-center w-full !mt-6">
+                                        <div className="flex items-center gap-2">
+
+                                            <button
+                                                onClick={() => setPaginaAtual(prev => Math.max(prev - 1, 1))}
+                                                disabled={paginaAtual === 1}
+                                                className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                Anterior
+                                            </button>
+
+                                            {Array.from({ length: totalPaginas }).map((_, index) => (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => setPaginaAtual(index + 1)}
+                                                    className={`w-8 h-8 flex items-center justify-center text-sm font-semibold rounded-md transition-colors ${paginaAtual === index + 1
+                                                        ? "bg-luna-teal text-white"
+                                                        : "text-gray-600 hover:bg-gray-100"
+                                                        }`}
+                                                >
+                                                    {index + 1}
+                                                </button>
+                                            ))}
+
+                                            <button
+                                                onClick={() => setPaginaAtual(prev => Math.min(prev + 1, totalPaginas))}
+                                                disabled={paginaAtual === totalPaginas}
+                                                className="px-3 py-1 text-sm font-semibold text-luna-teal rounded-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                            >
+                                                Próximo
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                )}
+
+                            </>
+                        )}
                     </div>
                 )}
 
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
-                       <ListaAtividades />
+                        <ListaAtividades />
                     </div>
                 )}
             </div>

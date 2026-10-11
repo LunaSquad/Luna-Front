@@ -24,7 +24,7 @@ function App() {
         <Route path="professor/home" element={<HomeProfessor />} />
         <Route path="professores/atividades" element={<AtividadesProfessores />} />
         <Route path="/professores/turmas" element={<CadastroTurmas />} />
-        <Route path="/professores/turma-especifica" element={<TurmaEspecifica />} />
+        <Route path="/professores/turma-especifica/:id" element={<TurmaEspecifica />} />
       </Routes>
     </BrowserRouter>
   )
