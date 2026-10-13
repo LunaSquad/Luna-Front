@@ -1,36 +1,72 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Users, Trash2, Pencil, ChevronRight } from "lucide-react";
 import InfoHeader from "../../components/escola/InfoHeader";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import SearchActionBar from "../../components/escola/SearchActionBar";
 import Table from "../../components/escola/TableInformations";
+import { api } from "../../services/api";
 
-interface TurmaItem {
-  id: number;
+interface Turma {
+  _id: string;
   nome: string;
-  alunos: number;
+  professorId?: {
+    _id: string;
+    nome: string;
+    sobrenome: string;
+  };
+  qtdAlunos: number;
   pendentes: number | null;
   progresso: number;
 }
 
-const turmasMock: TurmaItem[] = [
-  { id: 1, nome: "3º ano A", alunos: 10, pendentes: 3, progresso: 70 },
-  { id: 2, nome: "2º ano B", alunos: 9, pendentes: null, progresso: 90 },
-  { id: 3, nome: "3º ano C", alunos: 12, pendentes: 6, progresso: 50 },
-  { id: 4, nome: "1º ano A", alunos: 11, pendentes: 1, progresso: 77 },
-  { id: 5, nome: "1º ano B", alunos: 7, pendentes: 2, progresso: 68 },
-  { id: 6, nome: "2º ano C", alunos: 8, pendentes: null, progresso: 98 },
-];
-
 export default function CadastroTurmas() {
   const navigate = useNavigate();
   const [busca, setBusca] = useState("");
-  const [turmas, setTurmas] = useState<TurmaItem[]>(turmasMock);
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modalAberto, setModalAberto] = useState(false)
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false)
+  const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null)
 
   const turmasFiltradas = turmas.filter((t) =>
-    t.nome.toLowerCase().includes(busca.toLowerCase())
+    t.nome.toLowerCase().includes(busca.toLowerCase()) ||
+    (t.professorId?.nome || "").toLowerCase().includes(busca.toLocaleUpperCase())
   );
+
+  const carregarTurmas = async () => {
+    setIsLoading(true);
+    try {
+      const response = await api.getTurmas() as {data: Turma[]};
+      setTurmas(response.data);
+    } catch (error) {
+      console.error("Erro ao carregar Turmas", error);
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    carregarTurmas()
+  }, [])
+
+  async function handleDeletar() {
+    if (!turmaSelecionada) return
+
+    setTurmas((prev) => prev.filter((t) => t._id !== turmaSelecionada._id))
+    setModalDeleteOpen(false)
+
+    try {
+      await api.deleteTurma(turmaSelecionada._id)
+    } catch (error) {
+      console.error("Erro ao deletar a turma:", error)
+    }
+  }
+
+  function handleSalvo() {
+    setModalAberto(false);
+    carregarTurmas();
+  }
 
   const columns = [
     {
@@ -40,7 +76,7 @@ export default function CadastroTurmas() {
         </div>
       ),
       accessor: "nome",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex items-center gap-4 py-2 pl-3">
           <div className="w-10 h-10 rounded-full bg-[#FFD8C9] flex items-center justify-center text-[#005B60] shrink-0">
             <Users size={20} />
@@ -58,10 +94,10 @@ export default function CadastroTurmas() {
         </div>
       ),
       accessor: "alunos",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex justify-center items-center w-full py-2">
           <span className="inline-flex items-center justify-center min-w-[50px] h-7 px-2.5 rounded-full font-sans font-medium text-sm bg-[#FFF9F6] border border-[#FAD9CC] text-neutral-800">
-            {row.alunos}
+            {row.qtdAlunos}
           </span>
         </div>
       ),
@@ -73,7 +109,7 @@ export default function CadastroTurmas() {
         </div>
       ),
       accessor: "pendentes",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex justify-center items-center w-full py-2">
           {row.pendentes !== null && row.pendentes > 0 ? (
             <span className="inline-flex items-center justify-center min-w-[50px] h-7 px-2.5 rounded-full font-sans font-semibold text-sm bg-[#FFD7D7] text-[#E05353]">
@@ -94,7 +130,7 @@ export default function CadastroTurmas() {
         </div>
       ),
       accessor: "progresso",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex items-center justify-center gap-3 w-full py-2">
           <div className="w-36 bg-[#ECEFF1] rounded-full h-2.5 overflow-hidden">
             <div
@@ -115,7 +151,7 @@ export default function CadastroTurmas() {
         </div>
       ),
       accessor: "acoes",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex items-center justify-center gap-4 w-full py-2">
           <button
             type="button"
@@ -140,11 +176,11 @@ export default function CadastroTurmas() {
     {
       header: "",
       accessor: "detalhes",
-      render: (row: TurmaItem) => (
+      render: (row: Turma) => (
         <div className="flex justify-center items-center w-full py-2 pr-4">
           <button
             type="button"
-            onClick={() => navigate(`/professor/turmas/${row.id}`)}
+            onClick={() => navigate(`/professores/turma-especifica/${row._id}`, { state: { turma: row } })}
             className="w-7 h-7 rounded-full bg-[#D2EAEF] hover:bg-[#c2e4ea] text-[#005B60] flex items-center justify-center transition-colors cursor-pointer border-none"
             title="Ver turma"
           >
@@ -172,7 +208,13 @@ export default function CadastroTurmas() {
       />
 
       <div className="w-full mt-4">
-        <Table columns={columns as any} data={turmasFiltradas as any} />
+        {isLoading ? (
+          <div className="flex justify-center items-center !py-10 text-luna-teal font-sans font-medium">
+            Carregando Turmas
+          </div>
+        ) : (
+          <Table columns={columns as any} data={turmasFiltradas as any} />
+        )}
       </div>
     </LayoutBaseProf>
   );
