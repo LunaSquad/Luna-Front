@@ -1,6 +1,10 @@
 import { Calendar, ChevronRight } from "lucide-react"
 
-function ListaAtividades() {
+interface ListaAtividadesProps {
+  onSelecionarAtividade?: (atividade: any) => void;
+}
+
+function ListaAtividades({ onSelecionarAtividade }: ListaAtividadesProps) {
   return (
     <div className="flex flex-col w-full">
       {/* Barra de Filtros (Todas as Matérias) */}
@@ -92,6 +96,11 @@ function ListaAtividades() {
 
             <button
               type="button"
+              onClick={() => {
+                if (onSelecionarAtividade) {
+                  onSelecionarAtividade({ nome: "Separação silábica" });
+                }
+              }}
               className="!mr-5 w-8 h-8 rounded-full bg-[#D4ECE9] flex items-center justify-center text-[#005B52] hover:bg-teal-200 transition-colors cursor-pointer"
             >
               <ChevronRight size={18} />
@@ -126,6 +135,11 @@ function ListaAtividades() {
 
             <button
               type="button"
+              onClick={() => {
+                if (onSelecionarAtividade) {
+                  onSelecionarAtividade({ nome: "Soma" });
+                }
+              }}
               className="!mr-5 w-8 h-8 rounded-full bg-[#D4ECE9] flex items-center justify-center text-[#005B52] hover:bg-teal-200 transition-colors cursor-pointer"
             >
               <ChevronRight size={18} />
@@ -160,6 +174,11 @@ function ListaAtividades() {
 
             <button
               type="button"
+              onClick={() => {
+                if (onSelecionarAtividade) {
+                  onSelecionarAtividade({ nome: "Espaços Urbanos" });
+                }
+              }}
               className="!mr-5 w-8 h-8 rounded-full bg-[#D4ECE9] flex items-center justify-center text-[#005B52] hover:bg-teal-200 transition-colors cursor-pointer"
             >
               <ChevronRight size={18} />

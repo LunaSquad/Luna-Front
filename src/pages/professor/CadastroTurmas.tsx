@@ -25,41 +25,49 @@ export default function CadastroTurmas() {
   const [busca, setBusca] = useState("");
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [modalAberto, setModalAberto] = useState(false)
-  const [modalDeleteOpen, setModalDeleteOpen] = useState(false)
-  const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null)
+  const [modalAberto, setModalAberto] = useState(false);
+  const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
+  const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null);
+
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const itensPorPagina = 4;
 
   const turmasFiltradas = turmas.filter((t) =>
     t.nome.toLowerCase().includes(busca.toLowerCase()) ||
     (t.professorId?.nome || "").toLowerCase().includes(busca.toLocaleUpperCase())
   );
 
+  const totalPaginas = Math.ceil(turmasFiltradas.length / itensPorPagina);
+  const indiceUltimoItem = paginaAtual * itensPorPagina;
+  const indicePrimeiroItem = indiceUltimoItem - itensPorPagina;
+  const turmasPagina = turmasFiltradas.slice(indicePrimeiroItem, indiceUltimoItem);
+
   const carregarTurmas = async () => {
     setIsLoading(true);
     try {
-      const response = await api.getTurmas() as {data: Turma[]};
+      const response = await api.getTurmas() as { data: Turma[] };
       setTurmas(response.data);
     } catch (error) {
       console.error("Erro ao carregar Turmas", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    carregarTurmas()
-  }, [])
+    carregarTurmas();
+  }, []);
 
   async function handleDeletar() {
-    if (!turmaSelecionada) return
+    if (!turmaSelecionada) return;
 
-    setTurmas((prev) => prev.filter((t) => t._id !== turmaSelecionada._id))
-    setModalDeleteOpen(false)
+    setTurmas((prev) => prev.filter((t) => t._id !== turmaSelecionada._id));
+    setModalDeleteOpen(false);
 
     try {
-      await api.deleteTurma(turmaSelecionada._id)
+      await api.deleteTurma(turmaSelecionada._id);
     } catch (error) {
-      console.error("Erro ao deletar a turma:", error)
+      console.error("Erro ao deletar a turma:", error);
     }
   }
 
@@ -201,7 +209,10 @@ export default function CadastroTurmas() {
 
       <SearchActionBar
         searchValue={busca}
-        onSearchChange={setBusca}
+        onSearchChange={(val) => {
+          setBusca(val);
+          setPaginaAtual(1);
+        }}
         searchPlaceholder="Buscar"
         buttonLabel="Nova turma"
         onButtonClick={() => alert("Abrir modal de cadastro de turma")}
@@ -213,7 +224,53 @@ export default function CadastroTurmas() {
             Carregando Turmas
           </div>
         ) : (
-          <Table columns={columns as any} data={turmasFiltradas as any} />
+          <>
+            <Table columns={columns as any} data={turmasPagina as any} />
+
+            {totalPaginas > 1 && (
+              <div className="flex items-center justify-center w-full !mt-6">
+                <div className="flex items-center gap-3 text-sm font-medium">
+                  <button
+                    type="button"
+                    onClick={() => setPaginaAtual((prev) => Math.max(prev - 1, 1))}
+                    disabled={paginaAtual === 1}
+                    className="cursor-pointer text-[#005B60] hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed transition-colors font-semibold"
+                  >
+                    Anterior
+                  </button>
+
+                  {Array.from({ length: totalPaginas }).map((_, index) => {
+                    const numeroPagina = index + 1;
+                    const estaAtiva = paginaAtual === numeroPagina;
+
+                    return (
+                      <button
+                        key={numeroPagina}
+                        type="button"
+                        onClick={() => setPaginaAtual(numeroPagina)}
+                        className={`w-7 h-7 flex items-center justify-center rounded cursor-pointer transition-colors ${
+                          estaAtiva
+                            ? "bg-[#005B60] text-white font-semibold"
+                            : "text-gray-700 hover:text-[#005B60] font-medium"
+                        }`}
+                      >
+                        {numeroPagina}
+                      </button>
+                    );
+                  })}
+
+                  <button
+                    type="button"
+                    onClick={() => setPaginaAtual((prev) => Math.min(prev + 1, totalPaginas))}
+                    disabled={paginaAtual === totalPaginas}
+                    className="cursor-pointer text-[#005B60] hover:underline disabled:text-gray-400 disabled:no-underline disabled:cursor-not-allowed transition-colors font-semibold"
+                  >
+                    Próximo
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </div>
     </LayoutBaseProf>

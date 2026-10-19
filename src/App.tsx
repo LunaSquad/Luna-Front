@@ -11,6 +11,8 @@ import AtividadesProfessores from "./pages/professor/AtividadesProfessor"
 import CadastroTurmas from "./pages/professor/CadastroTurmas";
 import TurmaEspecifica from "./pages/professor/TurmaEspecifica";
 
+
+
 function App() {
   return (
     <BrowserRouter>
