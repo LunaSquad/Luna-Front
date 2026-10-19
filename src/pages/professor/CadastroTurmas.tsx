@@ -180,7 +180,7 @@ export default function CadastroTurmas() {
         <div className="flex justify-center items-center w-full py-2 pr-4">
           <button
             type="button"
-            onClick={() => navigate(`/professores/turma-especifica/${row._id}`, { state: { turma: row } })}
+            onClick={() => navigate(`/professores/turmaEspecifica/${row._id}`, { state: { turma: row } })}
             className="w-7 h-7 rounded-full bg-[#D2EAEF] hover:bg-[#c2e4ea] text-[#005B60] flex items-center justify-center transition-colors cursor-pointer border-none"
             title="Ver turma"
           >
