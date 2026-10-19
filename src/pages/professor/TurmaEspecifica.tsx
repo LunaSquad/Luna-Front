@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { Users, BookOpen, FileText, ChevronRight } from "lucide-react";
+import { Users, BookOpen, FileText, ChevronRight, CheckCircle2 } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
 import Table from "../../components/escola/TableInformations";
 import ConviteAluno from "../../components/professor/ConviteAluno";
 import ListaAtividades from "../../components/professor/ListaAtividades";
+import AtividadeEspecifica from "../../components/professor/AtividadeEspecifica";
 import { api } from "../../services/api";
 
 type SituacaoAluno = "Excelente" | "Atenção" | "Bom";
@@ -32,17 +33,28 @@ export default function TurmaEspecifica() {
     const location = useLocation();
     const turma = location.state?.turma;
     const [abaAtiva, setAbaAtiva] = useState('alunos')
+    const [atividadeSelecionada, setAtividadeSelecionada] = useState<any>(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
     const [isLoading, setIsLoading] = useState(true)
     // utilizar o link original
     const linkDeConvite = "https://sua-plataforma.com/turma-3anoA-luna";
 
-    const dadosCards = [
+    // Cards normais da Turma
+    const dadosCardsTurma = [
         { id: 1, icone: <Users size={24} />, valor: "10", label: "ALUNOS", alerta: false },
         { id: 2, icone: <BookOpen size={24} />, valor: "2", label: "PENDENTES", alerta: true },
         { id: 3, icone: <FileText size={24} />, valor: "3", label: "ATIVIDADES", alerta: false },
     ];
+
+    // Cards quando entra na Atividade Específica (reaproveita a mesma estrutura de cards!)
+    const dadosCardsAtividade = [
+        { id: 1, icone: <CheckCircle2 size={24} />, valor: "5", label: "CORRIGIDAS", alerta: false },
+        { id: 2, icone: <BookOpen size={24} />, valor: "2", label: "PENDENTES", alerta: true },
+        { id: 3, icone: <Users size={24} />, valor: "10", label: "ENTREGUES", alerta: false },
+    ];
+
+    const dadosCards = abaAtiva === 'correcao' ? dadosCardsAtividade : dadosCardsTurma;
 
     useEffect(() => {
         const carregarAlunos = async () => {
@@ -183,12 +195,19 @@ export default function TurmaEspecifica() {
         <LayoutBaseProf>
             <InfoHeaderProfessor />
 
+            {/* CABEÇALHO E CARDS REAPROVEITADOS */}
             <div className="w-full flex justify-between !mt-4">
                 <div className="flex flex-col gap-6 w-90">
                     <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
-                        {turma?.nome || "Turma não encontrada"}
+                        {abaAtiva === 'correcao' 
+                            ? (atividadeSelecionada?.nome || "Soma") 
+                            : (turma?.nome || "Turma não encontrada")}
                     </h2>
-                    <p className="m-0 font-sans font-light">Gerencie alunos, acompanhe atividades e desempenho.</p>
+                    <p className="m-0 font-sans font-light">
+                        {abaAtiva === 'correcao' 
+                            ? "Acompanhe e corrija a entrega dos alunos." 
+                            : "Gerencie alunos, acompanhe atividades e desempenho."}
+                    </p>
                 </div>
 
                 <div className="flex h-26 gap-12">
@@ -222,23 +241,24 @@ export default function TurmaEspecifica() {
                         </div>
                     ))}
                 </div>
-
             </div>
 
-            <AdicionaAlunos
-                buttonLabel={abaAtiva === 'alunos' ? 'Adicionar Alunos' : 'Adicionar Atividade'}
-                onButtonClick={() => {
-                    // passa como props de adiciona alunos e usa useState para trocar o valor aqui
-                    if (abaAtiva === 'alunos') {
-                        setModalAberto(true)
-                        setAlunoSelecionado(null)
-                    } else {
-                        console.log('Abrir Modal de atividade')
-                    }
-                }}
-                abaAtiva={abaAtiva}
-                setAbaAtiva={setAbaAtiva}
-            />
+            {/* Esconde os botões de abas (Alunos/Atividades) quando estiver na tela de correção */}
+            {abaAtiva !== 'correcao' && (
+                <AdicionaAlunos
+                    buttonLabel={abaAtiva === 'alunos' ? 'Adicionar Alunos' : 'Adicionar Atividade'}
+                    onButtonClick={() => {
+                        if (abaAtiva === 'alunos') {
+                            setModalAberto(true)
+                            setAlunoSelecionado(null)
+                        } else {
+                            console.log('Abrir Modal de atividade')
+                        }
+                    }}
+                    abaAtiva={abaAtiva}
+                    setAbaAtiva={setAbaAtiva}
+                />
+            )}
 
             <div className="w-full bg-transparent">
                 {abaAtiva === 'alunos' && (
@@ -296,18 +316,27 @@ export default function TurmaEspecifica() {
 
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
-                        <ListaAtividades />
+                        <ListaAtividades 
+                            onSelecionarAtividade={(ativ: any) => {
+                                setAtividadeSelecionada(ativ);
+                                setAbaAtiva('correcao');
+                            }} 
+                        />
                     </div>
                 )}
+
+                {abaAtiva === 'correcao' && (
+                    <div className="animate-in fade-in duration-500">
+                        <AtividadeEspecifica alunos={alunos.slice(0, 4)} />
+                    </div>
+                )}
+                
             </div>
 
-
             <ConviteAluno
-
                 isOpen={modalAberto}
                 onClose={() => setModalAberto(false)}
                 inviteLink={linkDeConvite}
-
             />
 
         </LayoutBaseProf>
