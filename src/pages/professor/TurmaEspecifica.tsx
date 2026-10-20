@@ -109,9 +109,9 @@ export default function TurmaEspecifica() {
             render: (row: Aluno) => (
                 <div className="flex justify-center items-center w-full">
                     {row.urlFotoLaudo ? (
-                        <a 
-                            href={row.urlFotoLaudo} 
-                            target="_blank" 
+                        <a
+                            href={row.urlFotoLaudo}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-luna-teal hover:text-[#004347] transition-colors cursor-pointer text-sm font-sans font-medium decoration-transparent hover:underline"
                         >
@@ -199,13 +199,13 @@ export default function TurmaEspecifica() {
             <div className="w-full flex justify-between !mt-4">
                 <div className="flex flex-col gap-6 w-90">
                     <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
-                        {abaAtiva === 'correcao' 
-                            ? (atividadeSelecionada?.nome || "Soma") 
+                        {abaAtiva === 'correcao'
+                            ? (atividadeSelecionada?.nome || "Soma")
                             : (turma?.nome || "Turma não encontrada")}
                     </h2>
                     <p className="m-0 font-sans font-light">
-                        {abaAtiva === 'correcao' 
-                            ? "Acompanhe e corrija a entrega dos alunos." 
+                        {abaAtiva === 'correcao'
+                            ? "Acompanhe e corrija a entrega dos alunos."
                             : "Gerencie alunos, acompanhe atividades e desempenho."}
                     </p>
                 </div>
@@ -316,21 +316,24 @@ export default function TurmaEspecifica() {
 
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
-                        <ListaAtividades 
+                        <ListaAtividades
                             onSelecionarAtividade={(ativ: any) => {
                                 setAtividadeSelecionada(ativ);
                                 setAbaAtiva('correcao');
-                            }} 
+                            }}
                         />
                     </div>
                 )}
 
-                {abaAtiva === 'correcao' && (
+                {abaAtiva === 'correcao' && atividadeSelecionada && (
                     <div className="animate-in fade-in duration-500">
-                        <AtividadeEspecifica alunos={alunos.slice(0, 4)} />
+                        <AtividadeEspecifica
+                            alunos={alunos.slice(0, 4)}
+                            atividadeId={atividadeSelecionada._id}
+                        />
                     </div>
                 )}
-                
+
             </div>
 
             <ConviteAluno

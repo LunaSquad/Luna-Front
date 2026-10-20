@@ -1,4 +1,5 @@
 import { Check, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 type StatusEntrega = "Entregue" | "Corrigido" | "Pendente";
 
@@ -10,12 +11,25 @@ interface AlunoBase {
 
 interface AtividadeEspecificaProps {
     alunos?: AlunoBase[];
+    atividadeId: string;
 }
 
 
 const statusMock: StatusEntrega[] = ["Entregue", "Corrigido", "Corrigido", "Pendente"];
 
-export default function AtividadeEspecifica({ alunos = [] }: AtividadeEspecificaProps) {
+export default function AtividadeEspecifica({ alunos = [], atividadeId, }: AtividadeEspecificaProps) {
+
+    const navigate = useNavigate();
+
+    const abrirCorrecao = (alunoId: string) => {
+
+        const idSimulado = atividadeId || "1";
+
+        navigate(
+            `/professores/correcaoAtividade/${idSimulado}/${alunoId}`
+        );
+    };
+
     return (
         <div className="flex flex-col gap-6 w-full !mt-8">
             {alunos.length === 0 && (
@@ -80,23 +94,16 @@ export default function AtividadeEspecifica({ alunos = [] }: AtividadeEspecifica
                                 </span>
                             )}
 
-                            {isCorrigido ? (
-                                <button
-                                    type="button"
-                                    onClick={() => alert(`Rever atividade de ${aluno.nome}`)}
-                                    className="w-[115px] h-10 rounded-md font-sans font-semibold text-sm text-[#005B52] border border-[#005B52] bg-white hover:bg-teal-50/50 transition-colors cursor-pointer flex items-center justify-center"
-                                >
-                                    Rever
-                                </button>
-                            ) : (
-                                <button
-                                    type="button"
-                                    onClick={() => alert(`Corrigir atividade de ${aluno.nome}`)}
-                                    className="w-[115px] h-10 rounded-md font-sans font-semibold text-sm text-white bg-[#005B52] hover:bg-[#004347] transition-colors cursor-pointer border-none shadow-xs flex items-center justify-center"
-                                >
-                                    Corrigir
-                                </button>
-                            )}
+                            <button
+                                type="button"
+                                onClick={() => abrirCorrecao(aluno._id)}
+                                className={`w-[115px] h-10 rounded-md font-sans font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center ${isCorrigido
+                                        ? "text-[#005B52] border border-[#005B52] bg-white hover:bg-teal-50/50"
+                                        : "text-white bg-[#005B52] hover:bg-[#004347] border-none shadow-xs"
+                                    }`}
+                            >
+                                {isCorrigido ? "Rever" : "Corrigir"}
+                            </button>
                         </div>
                     </div>
                 );

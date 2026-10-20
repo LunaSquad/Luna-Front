@@ -10,7 +10,7 @@ import HomeProfessor from "./pages/professor/HomeProfessor"
 import AtividadesProfessores from "./pages/professor/AtividadesProfessor"
 import CadastroTurmas from "./pages/professor/CadastroTurmas";
 import TurmaEspecifica from "./pages/professor/TurmaEspecifica";
-import AtividadeEspecifica from "./pages/professor/AtividadeEspecifica"
+import CorrecaoAtividade from "./pages/professor/CorrecaoAtividade"
 
 
 
@@ -28,7 +28,7 @@ function App() {
         <Route path="professores/atividades" element={<AtividadesProfessores />} />
         <Route path="/professores/turmas" element={<CadastroTurmas />} />
         <Route path="/professores/turmaEspecifica/:id" element={<TurmaEspecifica />} />
-        <Route path="/professores/atividadeEspecifica/:atividadeId/:alunoId" element={<AtividadeEspecifica />} />
+        <Route path="/professores/correcaoAtividade/:atividadeId/:alunoId" element={<CorrecaoAtividade />} />
       </Routes>
     </BrowserRouter>
   )

@@ -26,7 +26,7 @@ interface RespostaAluno {
     questoes: Questao[];
 }
 
-export default function AtividadeEspecifica() {
+export default function CorrecaoAtividade() {
     const { atividadeId, alunoId } = useParams();
     const [respostas, setRespostas] = useState<RespostaAluno[]>([]);
     const [paginaAtual, setPaginaAtual] = useState(1);
