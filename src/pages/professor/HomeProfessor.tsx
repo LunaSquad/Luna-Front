@@ -156,10 +156,10 @@ function Home() {
             <div className="cardTurma">
               <div className="cardTurmaLeft">
                 <h2 className="cardTurmaNome">
-                  {turma.nome} <span>{turma.letra}</span>
+                  Visão <span>geral</span>
                 </h2>
                 <p className="cardTurmaDesc">
-                  Acompanhe o progresso, gerencie atividades e mantenha a rotina da turma em dia.
+                  Gerencie suas turmas e planos de aula em um único painel.
                 </p>
                 <div className="cardTurmaStats">
                   <span className="cardTurmaStat"><Users size={13}/> {turma.totalAlunos} alunos</span>
@@ -188,7 +188,7 @@ function Home() {
                         <span className="cardTurmaBtnTitulo2">Pendente</span>
                         <div className="cardTurmaQtdPend">{turma.tarefasPendentes}</div>
                       </div>
-                      <span className="cardTurmaBtnSub2">Atividades para realizar hoje</span>
+                      <span className="cardTurmaBtnSub2">Atividades para revisar hoje</span>
                     </div>
                   </div>
                   <ChevronRight size={18} color="rgba(255,255,255,0.5)" />

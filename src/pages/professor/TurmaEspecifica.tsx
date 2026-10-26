@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { Users, BookOpen, FileText, ChevronRight, CheckCircle2 } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
@@ -32,7 +32,11 @@ export default function TurmaEspecifica() {
     const navigate = useNavigate();
     const location = useLocation();
     const turma = location.state?.turma;
-    const [abaAtiva, setAbaAtiva] = useState('alunos')
+    const [searchParams] = useSearchParams();
+
+    const [abaAtiva, setAbaAtiva] = useState(
+        searchParams.get("aba") === "atividades" ? "atividades" : "alunos"
+    );
     const [atividadeSelecionada, setAtividadeSelecionada] = useState<any>(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
@@ -58,8 +62,8 @@ export default function TurmaEspecifica() {
 
     useEffect(() => {
         const carregarAlunos = async () => {
-            setIsLoading(true);
             try {
+                setIsLoading(true);
                 if (id) {
                     const response = await api.getAlunosPorTurma(id) as { data: Aluno[] };
                     setAlunos(response.data);
@@ -72,6 +76,20 @@ export default function TurmaEspecifica() {
         };
         carregarAlunos();
     }, [id]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center !py-20 text-luna-teal">
+                <div className="animate-pulse flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-luna-teal border-t-transparent rounded-full animate-spin">
+                    </div>
+                    <p className="font-medium">
+                        {abaAtiva === "atividades" ? "Carregando as Atividades" : "Carregando os Alunos"}
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     const columns = [
         {
@@ -109,9 +127,9 @@ export default function TurmaEspecifica() {
             render: (row: Aluno) => (
                 <div className="flex justify-center items-center w-full">
                     {row.urlFotoLaudo ? (
-                        <a 
-                            href={row.urlFotoLaudo} 
-                            target="_blank" 
+                        <a
+                            href={row.urlFotoLaudo}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="flex items-center gap-2 text-luna-teal hover:text-[#004347] transition-colors cursor-pointer text-sm font-sans font-medium decoration-transparent hover:underline"
                         >
@@ -193,19 +211,22 @@ export default function TurmaEspecifica() {
 
     return (
         <LayoutBaseProf>
-            <InfoHeaderProfessor />
+            <InfoHeaderProfessor
+                textoVoltar="Voltar para Turmas"
+                rotaVoltar={`/professores/turmas`}
+            />
 
             {/* CABEÇALHO E CARDS REAPROVEITADOS */}
             <div className="w-full flex justify-between !mt-4">
                 <div className="flex flex-col gap-6 w-90">
                     <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
-                        {abaAtiva === 'correcao' 
-                            ? (atividadeSelecionada?.nome || "Soma") 
+                        {abaAtiva === 'correcao'
+                            ? (atividadeSelecionada?.nome || "Soma")
                             : (turma?.nome || "Turma não encontrada")}
                     </h2>
                     <p className="m-0 font-sans font-light">
-                        {abaAtiva === 'correcao' 
-                            ? "Acompanhe e corrija a entrega dos alunos." 
+                        {abaAtiva === 'correcao'
+                            ? "Acompanhe e corrija a entrega dos alunos."
                             : "Gerencie alunos, acompanhe atividades e desempenho."}
                     </p>
                 </div>
@@ -316,21 +337,25 @@ export default function TurmaEspecifica() {
 
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
-                        <ListaAtividades 
+                        <ListaAtividades
                             onSelecionarAtividade={(ativ: any) => {
                                 setAtividadeSelecionada(ativ);
                                 setAbaAtiva('correcao');
-                            }} 
+                            }}
                         />
                     </div>
                 )}
 
-                {abaAtiva === 'correcao' && (
+                {abaAtiva === 'correcao' && atividadeSelecionada && (
                     <div className="animate-in fade-in duration-500">
-                        <AtividadeEspecifica alunos={alunos.slice(0, 4)} />
+                        <AtividadeEspecifica
+                            alunos={alunos.slice(0, 4)}
+                            atividadeId={atividadeSelecionada._id}
+                            turmaId={id || ""}
+                        />
                     </div>
                 )}
-                
+
             </div>
 
             <ConviteAluno

@@ -1,4 +1,8 @@
-// Usando mock para simular
+import fotoMariaClara from "../pages/professor/imagensAlunos/maria-clara.jpg"
+const dummyPdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+
+// --- MOCKS ---
+
 let turmasMock = [
   {
     _id: "1",
@@ -74,9 +78,6 @@ let turmasMock = [
   },
 ];
 
-import fotoMariaClara from "../pages/professor/imagensAlunos/maria-clara.jpg"
-const dummyPdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
-
 const dadosAlunosMock = [
   {
     _id: "1",
@@ -125,86 +126,31 @@ const dadosAlunosMock = [
   },
 ];
 
-// Usando mock para simular as respostas de uma atividade/prova
 const respostasMock = [
   {
     _id: "resp1",
-    alunoId: "1", // Referência ao _id "1" (Maria Clara) do dadosAlunosMock
+    alunoId: "1", 
     nome: "Maria Clara",
     avatarUrl: fotoMariaClara,
     acertos: 7,
     totalQuestoes: 9,
-    aproveitamento: 77, // Mantendo os 80% do design
+    aproveitamento: 77, 
     comentarioProfessor: "",
     questoes: [
-      {
-        _id: "q1",
-        numero: 1,
-        enunciado: "Quanto é 2+3?",
-        respostaAluno: "5",
-        correta: true
-      },
-      {
-        _id: "q2",
-        numero: 2,
-        enunciado: "Quanto é 23+3?",
-        respostaAluno: "22",
-        correta: false
-      },
-      {
-        _id: "q3",
-        numero: 3,
-        enunciado: "Quanto é 5 + 3?",
-        respostaAluno: "8",
-        correta: true
-      },
-      { 
-        _id: "q4", 
-        numero: 4, 
-        enunciado: "Quanto é 10 + 2?", 
-        respostaAluno: "12", 
-        correta: true 
-      },
-      { 
-        _id: "q5", 
-        numero: 5, 
-        enunciado: "Quanto é 5 * 5?", 
-        respostaAluno: "25", 
-        correta: true 
-      },
-      { 
-        _id: "q6", 
-        numero: 6, 
-        enunciado: "Quanto é 8 - 3?", 
-        respostaAluno: "5", 
-        correta: true 
-      },
-      { 
-        _id: "q7", 
-        numero: 7, 
-        enunciado: "Quanto é 9 / 3?", 
-        respostaAluno: "3", 
-        correta: true 
-      },
-      { 
-        _id: "q8", 
-        numero: 8, 
-        enunciado: "Quanto é 1 + 1?", 
-        respostaAluno: "3", 
-        correta: false 
-      },
-      { 
-        _id: "q9", 
-        numero: 9, 
-        enunciado: "Quanto é 4 * 2?", 
-        respostaAluno: "8", 
-        correta: true 
-      }
+      { _id: "q1", numero: 1, enunciado: "Quanto é 2+3?", respostaAluno: "5", correta: true },
+      { _id: "q2", numero: 2, enunciado: "Quanto é 23+3?", respostaAluno: "22", correta: false },
+      { _id: "q3", numero: 3, enunciado: "Quanto é 5 + 3?", respostaAluno: "8", correta: true },
+      { _id: "q4", numero: 4, enunciado: "Quanto é 10 + 2?", respostaAluno: "12", correta: true },
+      { _id: "q5", numero: 5, enunciado: "Quanto é 5 * 5?", respostaAluno: "25", correta: true },
+      { _id: "q6", numero: 6, enunciado: "Quanto é 8 - 3?", respostaAluno: "5", correta: true },
+      { _id: "q7", numero: 7, enunciado: "Quanto é 9 / 3?", respostaAluno: "3", correta: true },
+      { _id: "q8", numero: 8, enunciado: "Quanto é 1 + 1?", respostaAluno: "3", correta: false },
+      { _id: "q9", numero: 9, enunciado: "Quanto é 4 * 2?", respostaAluno: "8", correta: true }
     ]
   },
   {
     _id: "resp2",
-    alunoId: "2", // Referência ao _id "2" (João Oliveira)
+    alunoId: "2", 
     nome: "João Oliveira",
     avatarUrl: fotoMariaClara,
     acertos: 3,
@@ -212,32 +158,14 @@ const respostasMock = [
     aproveitamento: 100,
     comentarioProfessor: "Excelente trabalho, João!",
     questoes: [
-      {
-        _id: "q1",
-        numero: 1,
-        enunciado: "Quanto é 2+3?",
-        respostaAluno: "5",
-        correta: true
-      },
-      {
-        _id: "q2",
-        numero: 2,
-        enunciado: "Quanto é 23+3?",
-        respostaAluno: "26",
-        correta: true
-      },
-      {
-        _id: "q3",
-        numero: 3,
-        enunciado: "Quanto é 5 + 3?",
-        respostaAluno: "8",
-        correta: true
-      }
+      { _id: "q1", numero: 1, enunciado: "Quanto é 2+3?", respostaAluno: "5", correta: true },
+      { _id: "q2", numero: 2, enunciado: "Quanto é 23+3?", respostaAluno: "26", correta: true },
+      { _id: "q3", numero: 3, enunciado: "Quanto é 5 + 3?", respostaAluno: "8", correta: true }
     ]
   },
   {
     _id: "resp3",
-    alunoId: "3", // Referência ao _id "3" (Carol Silva)
+    alunoId: "3",
     nome: "Carol Silva",
     avatarUrl: fotoMariaClara,
     acertos: 1,
@@ -245,32 +173,14 @@ const respostasMock = [
     aproveitamento: 33,
     comentarioProfessor: "",
     questoes: [
-      {
-        _id: "q1",
-        numero: 1,
-        enunciado: "Quanto é 2+3?",
-        respostaAluno: "6",
-        correta: false
-      },
-      {
-        _id: "q2",
-        numero: 2,
-        enunciado: "Quanto é 23+3?",
-        respostaAluno: "25",
-        correta: false
-      },
-      {
-        _id: "q3",
-        numero: 3,
-        enunciado: "Quanto é 5 + 3?",
-        respostaAluno: "8",
-        correta: true
-      }
+      { _id: "q1", numero: 1, enunciado: "Quanto é 2+3?", respostaAluno: "6", correta: false },
+      { _id: "q2", numero: 2, enunciado: "Quanto é 23+3?", respostaAluno: "25", correta: false },
+      { _id: "q3", numero: 3, enunciado: "Quanto é 5 + 3?", respostaAluno: "8", correta: true }
     ]
   },
   {
     _id: "resp4",
-    alunoId: "4", // Referência ao _id "4" (Sofia Santos)
+    alunoId: "4", 
     nome: "Sofia Santos",
     avatarUrl: fotoMariaClara,
     acertos: 2,
@@ -278,33 +188,45 @@ const respostasMock = [
     aproveitamento: 66,
     comentarioProfessor: "",
     questoes: [
-      {
-        _id: "q1",
-        numero: 1,
-        enunciado: "Quanto é 2+3?",
-        respostaAluno: "5",
-        correta: true
-      },
-      {
-        _id: "q2",
-        numero: 2,
-        enunciado: "Quanto é 23+3?",
-        respostaAluno: "24",
-        correta: false
-      },
-      {
-        _id: "q3",
-        numero: 3,
-        enunciado: "Quanto é 5 + 3?",
-        respostaAluno: "8",
-        correta: true
-      }
+      { _id: "q1", numero: 1, enunciado: "Quanto é 2+3?", respostaAluno: "5", correta: true },
+      { _id: "q2", numero: 2, enunciado: "Quanto é 23+3?", respostaAluno: "24", correta: false },
+      { _id: "q3", numero: 3, enunciado: "Quanto é 5 + 3?", respostaAluno: "8", correta: true }
     ]
   }
 ];
 
+// Mock das Atividades
+const atividadesMock = [
+  {
+    _id: "1",
+    materia: "Língua Portuguesa",
+    sigla: "LP",
+    titulo: "Separação silábica",
+    descricao: "Separas as palavras de acordo com suas sílabas",
+    data: "07/08/2026",
+  },
+  {
+    _id: "2",
+    materia: "Matemática",
+    sigla: "MAT",
+    titulo: "Soma",
+    descricao: "Determine o resultado da soma dos números",
+    data: "07/08/2026",
+  },
+  {
+    _id: "3",
+    materia: "Geografia",
+    sigla: "GEO",
+    titulo: "Espaços Urbanos",
+    descricao: "Identifique as imagens que apresentam espaços urbanos",
+    data: "07/08/2026",
+  }
+];
+
+
+// --- API ---
+
 export const api = {
-  // Simula a busca de todas as turmas
   getTurmas: async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
@@ -312,6 +234,7 @@ export const api = {
       }, 1000);
     });
   },
+
   deleteTurma: async (id: string) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -327,14 +250,12 @@ export const api = {
     })
   },
 
-  // Simula a busca de alunos de uma turma específica
   getAlunosPorTurma: async (turmaId?: string | number) => {
-
     console.log("Buscando a turma por ID", turmaId)
 
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve({ data: dadosAlunosMock }); // Retornando { data: ... }
+        resolve({ data: dadosAlunosMock }); 
       }, 800);
     });
   },
@@ -357,7 +278,6 @@ export const api = {
         const respostaIndex = respostasMock.findIndex(r => r._id === respostaId);
 
         if (respostaIndex !== -1) {
-          // Atualiza o mock localmente
           respostasMock[respostaIndex].comentarioProfessor = comentario;
           resolve({ status: 200, message: "Feedback enviado com sucesso!" });
         } else {
@@ -367,5 +287,14 @@ export const api = {
     });
   },
 
+  // NOVO MÉTODO: Simula a busca de todas as atividades
+  getAtividades: async () => {
+    console.log("Buscando a lista de atividades...");
+    
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve({ data: atividadesMock });
+      }, 800);
+    });
+  },
 };
-

@@ -14,14 +14,19 @@ type Turma = {
   qtdAlunos: number;
 };
 
-async function enviarPlanoManual(dataAula: string, dataFechamento: string, horarioFechamento: string ,turma: string, titulo: string, detalhamento: string) {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano manual enviado:", { dataAula, dataFechamento, horarioFechamento, turma, titulo, detalhamento });
+type Materia = {
+  _id: string;
+  nome: string;
 }
 
-async function enviarPlanoAnexo(dataAula: string, dataFechamento: string, horarioFechamento:string ,turma: string, arquivo: File) {
+async function enviarPlanoManual(dataAula: string, dataFechamento: string, horarioFechamento: string, turma: string, materia: string, titulo: string, detalhamento: string) {
   await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano por anexo enviado:", { dataAula, dataFechamento, horarioFechamento, turma, arquivo: arquivo.name });
+  console.log("Plano manual enviado:", { dataAula, dataFechamento, horarioFechamento, turma, materia, titulo, detalhamento });
+}
+
+async function enviarPlanoAnexo(dataAula: string, dataFechamento: string, horarioFechamento: string, turma: string, materia: string, arquivo: File) {
+  await new Promise((resolve) => setTimeout(resolve, 1500));
+  console.log("Plano por anexo enviado:", { dataAula, dataFechamento, horarioFechamento, turma, materia, arquivo: arquivo.name });
 }
 
 export default function PlanoAula() {
@@ -33,6 +38,7 @@ export default function PlanoAula() {
   const [dataFechamento, setDataFechamento] = useState('');
   const [horarioFechamento, setHorarioFechamento] = useState('');
   const [turma, setTurma] = useState('');
+  const [materia, setMateria] = useState('');
   const [titulo, setTitulo] = useState('');
   const [detalhamento, setDetalhamento] = useState('');
   const [carregando, setCarregando] = useState(false);
@@ -65,6 +71,21 @@ export default function PlanoAula() {
       qtdAlunos: 30,
     },
   ];
+
+  const MateriaMock: Materia[] = [
+    {
+      _id: "1",
+      nome: "Português"
+    },
+    {
+      _id: "2",
+      nome: "Matemática"
+    },
+    {
+      _id: "3",
+      nome: "História"
+    },
+  ]
 
   const formatarMascaraData = (valor: string) => {
     let v = valor.replace(/\D/g, "");
@@ -108,6 +129,11 @@ export default function PlanoAula() {
       return;
     }
 
+    if (!materia) {
+      setErro('Selecione uma matéria.');
+      return;
+    }
+
     if (modo === 'manual' && (!titulo || !detalhamento)) {
       setErro('Preencha todos os campos.');
       return;
@@ -131,15 +157,16 @@ export default function PlanoAula() {
       const dataFechamentoFormatada = converterParaBackend(dataFechamento);
 
       if (modo === 'manual') {
-        await enviarPlanoManual(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, titulo, detalhamento);
+        await enviarPlanoManual(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, materia, titulo, detalhamento);
       } else {
-        await enviarPlanoAnexo(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, arquivoSelecionado!);
+        await enviarPlanoAnexo(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, materia, arquivoSelecionado!);
       }
 
       setDataAula('');
       setDataFechamento('');
       setHorarioFechamento('');
       setTurma('');
+      setMateria('');
       setTitulo('');
       setDetalhamento('');
       setArquivoSelecionado(null);
@@ -233,29 +260,63 @@ export default function PlanoAula() {
             )}
           </div>
 
-          <div className="w-full relative my-3">
+          <div className="flex w-full gap-8">
+            <div className="flex gap-2 flex-1">
+              <div className="w-full relative">
 
-            <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-luna-teal">
-              <ChevronDown size={24} />
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-luna-teal">
+                  <ChevronDown size={24} />
+                </div>
+
+                <select
+                  value={turma}
+                  onChange={(e) => setTurma(e.target.value)}
+                  className="w-full h-12 !pl-4 !pr-12 bg-white border text-gray-400 border-luna-teal rounded-lg text-md font-sans font-light appearance-none focus:outline-none focus:ring-1 focus:ring-luna-teal cursor-pointer"
+                  required
+                >
+
+                  <option value="" disabled>
+                    Selecione uma turma
+                  </option>
+
+                  {turmasMock.map((tm) => (
+                    <option key={tm._id} value={tm._id} className="text-luna-teal font-sans font-light bg-white">{tm.nome}</option>
+                  ))}
+
+                </select>
+
+              </div>
             </div>
+            <div className="flex gap-2 flex-1">
+              <div className="w-full relative">
 
-            <select
-              value={turma}
-              onChange={(e) => setTurma(e.target.value)}
-              className="w-full h-12 !pl-4 !pr-12 bg-white border text-gray-400 border-luna-teal rounded-lg text-md font-sans font-light appearance-none focus:outline-none focus:ring-1 focus:ring-luna-teal cursor-pointer"
-              required
-            >
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-luna-teal">
+                  <ChevronDown size={24} />
+                </div>
 
-              <option value="" disabled>
-                Selecione uma turma
-              </option>
+                <select
+                  value={materia}
+                  onChange={(e) => setMateria(e.target.value)}
+                  className="w-full h-12 !pl-4 !pr-12 bg-white border text-gray-400 border-luna-teal rounded-lg text-md font-sans font-light appearance-none focus:outline-none focus:ring-1 focus:ring-luna-teal cursor-pointer"
+                  required
+                >
 
-              {turmasMock.map((tm) => (
-                <option key={tm._id} value={tm._id} className="text-luna-teal font-sans font-light bg-white">{tm.nome}</option>
-              ))}
+                  <option value="" disabled>
+                    Selecione uma matéria
+                  </option>
 
-            </select>
+                  {MateriaMock.filter((mt, index, self) =>
+                    index === self.findIndex((t) => t.nome === mt.nome)
+                  ).map((mt) => (
+                    <option key={mt._id} value={mt._id} className="text-luna-teal font-sans font-light bg-white">
+                      {mt.nome}
+                    </option>
+                  ))}
 
+                </select>
+
+              </div>
+            </div>
           </div>
 
           <div className="flex w-full gap-8">
