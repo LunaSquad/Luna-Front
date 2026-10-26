@@ -33,7 +33,7 @@ function Login() {
             localStorage.setItem("user", JSON.stringify(response.data.usuario));
 
             if (usuario.tipoUser === "escola") {
-                navigate("/home"); 
+                navigate("/home");
             } else if (usuario.tipoUser === "professor") {
                 navigate("/professor/home");
             } else {
@@ -50,60 +50,60 @@ function Login() {
 
     return (
 
-        <div className="containerLogin">
+        <div className="relative w-full h-full bg-[#fdfdf8] flex items-center gap-[250px] overflow-hidden">
             <NavTitulo />
 
-            <div className="principal-info-right">
-                <div className="principal-platform-title">
+            <div className="flex flex-col justify-start !py-[100px] !px-[30px] bg-luna-teal h-screen rounded-tr-3xl rounded-br-3xl font-sans [font-optical-sizing:auto] shadow-lg gap-[40px] shrink-0">
+                <div className="flex items-center bg-luna-cabecalho-dois h-0 w-[300px] !p-4 font-light text-base text-luna-peach rounded-full gap-2">
                     <Circle size={16} fill="#D9D9D9" />
                     <p>
-                        PLATAFORMA ESCOLAR
+                        PLATAFORMA EDUCACIONAL
                     </p>
                 </div>
 
-                <h1 className="principal-info-right-title">
-                    Educação que <span>acolhe</span> cada aluno.
+                <h1 className="text-white text-5xl w-[360px] font-semibold ">
+                    Educação que <span className="text-luna-peach italic font-light">acolhe</span> cada aluno.
                 </h1>
 
-                <p className="principal-info-right-description">
-                    Uma experiência pensada para escolas que valorizam o cuidado individual, a organização inteligente e o desenvolvimento neurodiverso.
+                <p className="text-white text-base w-[330px] !mb-6">
+                    Uma experiência para professores que valorizam cada aluno e promovem uma educação inclusiva.
                 </p>
 
-                <div className="principal-info-right-opcs">
-                    <div className="principal-info-right-opc">
-                        <p className="opc-icon">
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center gap-3 text-white text-base">
+                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
                             <Check size={16} />
                         </p>
-                        <p className="opc-description">
+                        <p>
                             Acompanhamento focado em neurodiversidade
                         </p>
                     </div>
-                    <div className="principal-info-right-opc">
-                        <p className="opc-icon">
+                    <div className="flex items-center gap-3 text-white text-base">
+                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
                             <Check size={16} />
                         </p>
-                        <p className="opc-description">
+                        <p>
                             Ferramentas de suporte à acessibilidade
                         </p>
                     </div>
-                    <div className="principal-info-right-opc">
-                        <p className="opc-icon">
+                    <div className="flex items-center gap-3 text-white text-base">
+                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
                             <Check size={16} />
                         </p>
-                        <p className="opc-description">
+                        <p>
                             Gestão humanizada de alunos e turmas
                         </p>
                     </div>
                 </div>
             </div>
 
-            <div className="logins">
-                <div className="form-header-text-login">
-                    <h2>Entrar</h2>
-                    <p>Acesse sua conta</p>
+            <div className="relative flex justify-start items-center flex-col !p-5 bg-transparent w-full max-w-150 h-137 rounded-lg gap-12">
+                <div className="flex flex-col w-75 font-sans gap-1.5">
+                    <h2 className="font-semibold text-3xl text-luna-teal">Entrar</h2>
+                    <p className="font-normal text-base text-gray-400">Acesse sua conta</p>
                 </div>
-                <form onSubmit={handleSubmit} className="formLogin">
-                    <div className="conjEmail">
+                <form onSubmit={handleSubmit} className="flex justify-start min-w-75 gap-10 flex-col">
+                    <div className="relative flex flex-col gap-5.5 w-75 font-sans [font-optical-sizing:auto] font-bold font-normal text-lg text-luna-teal">
                         <Input
                             id="email"
                             label="E-mail"
@@ -112,9 +112,9 @@ function Login() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        <Mail size={18} className="icon-input" />
+                        <Mail size={18} className="absolute right-0 bottom-2 pointer-events-none" />
                     </div>
-                    <div className="conjSenha">
+                    <div className="relative flex flex-col gap-5.5 w-75 font-sans [font-optical-sizing:auto] font-bold font-normal text-lg text-luna-teal">
                         <Input
                             id="senha"
                             label="Senha"
@@ -123,17 +123,17 @@ function Login() {
                             value={senha}
                             onChange={(e) => setSenha(e.target.value)}
                         />
-                        <div className="icon-input" onClick={toggleSenha}>
+                        <div className="absolute right-0 bottom-2 cursor-pointer" onClick={toggleSenha}>
                             {verSenha ? <EyeClosed size={18} /> : <Eye size={18} />}
                         </div>
                     </div>
 
-                    {erro && <p className="erro-form">{erro}</p>}
+                    {erro && <p>{erro}</p>}
 
-                    <div className="botao">
+                    <div className="flex justify-center h-10 !mt-5">
                         <Button
                             type="submit"
-                            className="submitLogin"
+                            className="w-32.5 border-none rounded-xl bg-luna-teal text-white font-sans [font-optical-sizing:auto] font-bold text-xl cursor-pointer"
                             disabled={carregando}
                         >
                             {carregando ? "Entrando..." : "Acessar"}
@@ -141,8 +141,13 @@ function Login() {
                     </div>
                 </form>
 
-                <p className="footer-text">
-                    Novo por aqui? <span><Link to="/cadastro">Cadastre-se</Link></span>
+                <p className="font-sans font-light">
+                    Novo por aqui? 
+                    <span className="text-luna-teal font-bold no-underline">
+                        <Link to="/cadastro">
+                        Cadastre-se
+                        </Link>
+                    </span>
                 </p>
             </div>
 

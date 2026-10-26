@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams } from "react-router-dom";
+import { useNavigate, useLocation, useParams, useSearchParams } from "react-router-dom";
 import { Users, BookOpen, FileText, ChevronRight, CheckCircle2 } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
@@ -32,7 +32,11 @@ export default function TurmaEspecifica() {
     const navigate = useNavigate();
     const location = useLocation();
     const turma = location.state?.turma;
-    const [abaAtiva, setAbaAtiva] = useState('alunos')
+    const [searchParams] = useSearchParams();
+
+    const [abaAtiva, setAbaAtiva] = useState(
+        searchParams.get("aba") === "atividades" ? "atividades" : "alunos"
+    );
     const [atividadeSelecionada, setAtividadeSelecionada] = useState<any>(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
@@ -58,8 +62,8 @@ export default function TurmaEspecifica() {
 
     useEffect(() => {
         const carregarAlunos = async () => {
-            setIsLoading(true);
             try {
+                setIsLoading(true);
                 if (id) {
                     const response = await api.getAlunosPorTurma(id) as { data: Aluno[] };
                     setAlunos(response.data);
@@ -72,6 +76,20 @@ export default function TurmaEspecifica() {
         };
         carregarAlunos();
     }, [id]);
+
+    if (isLoading) {
+        return (
+            <div className="flex justify-center items-center !py-20 text-luna-teal">
+                <div className="animate-pulse flex flex-col items-center gap-3">
+                    <div className="w-8 h-8 border-4 border-luna-teal border-t-transparent rounded-full animate-spin">
+                    </div>
+                    <p className="font-medium">
+                        {abaAtiva === "atividades" ? "Carregando as Atividades" : "Carregando os Alunos"}
+                    </p>
+                </div>
+            </div>
+        )
+    }
 
     const columns = [
         {
@@ -193,7 +211,10 @@ export default function TurmaEspecifica() {
 
     return (
         <LayoutBaseProf>
-            <InfoHeaderProfessor />
+            <InfoHeaderProfessor
+                textoVoltar="Voltar para Turmas"
+                rotaVoltar={`/professores/turmas`}
+            />
 
             {/* CABEÇALHO E CARDS REAPROVEITADOS */}
             <div className="w-full flex justify-between !mt-4">
@@ -330,6 +351,7 @@ export default function TurmaEspecifica() {
                         <AtividadeEspecifica
                             alunos={alunos.slice(0, 4)}
                             atividadeId={atividadeSelecionada._id}
+                            turmaId={id || ""}
                         />
                     </div>
                 )}

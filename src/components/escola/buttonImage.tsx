@@ -14,18 +14,19 @@ function UploadImagem({ label, onChange }: UploadImagemProps) {
   }
 
   return (
-    <div className="uploadGroup">
-      <label className="uploadLabel">{label}</label>
+    <div className="flex text-center items-center flex-col gap-1.5 font-sans">
+      <label className="font-bold text-lg text-luna-teal no-underline">{label}
+      </label>
 
-      <label className="uploadBox">
+      <label className="relative w-38 h-10 border-2 border-dashed border-luna-teal rounded-xl flex items-center justify-center text-center cursor-pointer">
         <input
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="uploadInput"
+          className="hidden"
         />
 
-        <span className="uploadIcon">
+        <span className="text-center text-luna-teal">
           <ImagePlus size={22} />
         </span>
       </label>

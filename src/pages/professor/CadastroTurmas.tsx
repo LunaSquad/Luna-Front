@@ -43,8 +43,8 @@ export default function CadastroTurmas() {
   const turmasPagina = turmasFiltradas.slice(indicePrimeiroItem, indiceUltimoItem);
 
   const carregarTurmas = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const response = await api.getTurmas() as { data: Turma[] };
       setTurmas(response.data);
     } catch (error) {
@@ -57,6 +57,20 @@ export default function CadastroTurmas() {
   useEffect(() => {
     carregarTurmas();
   }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center !py-20 text-luna-teal">
+        <div className="animate-pulse flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-luna-teal border-t-transparent rounded-full animate-spin">
+          </div>
+          <p className="font-medium">
+            Carregando Turmas...
+          </p>
+        </div>
+      </div>
+    )
+  }
 
   async function handleDeletar() {
     if (!turmaSelecionada) return;

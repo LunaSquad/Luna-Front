@@ -12,12 +12,13 @@ interface AlunoBase {
 interface AtividadeEspecificaProps {
     alunos?: AlunoBase[];
     atividadeId: string;
+    turmaId: string;
 }
 
 
 const statusMock: StatusEntrega[] = ["Entregue", "Corrigido", "Corrigido", "Pendente"];
 
-export default function AtividadeEspecifica({ alunos = [], atividadeId, }: AtividadeEspecificaProps) {
+export default function AtividadeEspecifica({ alunos = [], atividadeId, turmaId }: AtividadeEspecificaProps) {
 
     const navigate = useNavigate();
 
@@ -26,7 +27,7 @@ export default function AtividadeEspecifica({ alunos = [], atividadeId, }: Ativi
         const idSimulado = atividadeId || "1";
 
         navigate(
-            `/professores/correcaoAtividade/${idSimulado}/${alunoId}`
+            `/professores/correcaoAtividade/${idSimulado}/${alunoId}?turmaId=${turmaId}`
         );
     };
 
