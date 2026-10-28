@@ -146,7 +146,7 @@ function Turmas() {
       <Table columns={columns} data={turmasFiltradas} />
 
       <ModalTurma isOpen={modalAberto} onClose={() => setModalAberto(false)}>
-        <div className="logoTurma">
+        <div className="flex justify-center items-center rounded-full w-12.5 h-12.5 bg-luna-icon-bg text-luna-teal">
           <Users size={24}/>
         </div>
         <FormTurma

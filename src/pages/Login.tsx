@@ -141,13 +141,11 @@ function Login() {
                     </div>
                 </form>
 
-                <p className="font-sans font-light">
-                    Novo por aqui? 
-                    <span className="text-luna-teal font-bold no-underline">
-                        <Link to="/cadastro">
+                <p className="font-sans font-light">Novo por aqui? <span className="text-luna-teal font-bold no-underline">
+                    <Link to="/cadastro">
                         Cadastre-se
-                        </Link>
-                    </span>
+                    </Link>
+                </span>
                 </p>
             </div>
 
