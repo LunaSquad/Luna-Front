@@ -8,7 +8,7 @@ import MeuCalendario from "../../components/calendar/MeuCalendario";
 import EventsList from "../../components/escola/EventsInput";
 import ModalEvents from "../modals/ModalEvents";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
-import { api } from "../../services/api";
+import { http } from "../../services/api";
 
 interface Evento {
   description: string;
@@ -36,6 +36,18 @@ interface UserData {
   foto?: string;
 }
 
+interface TurmaAPI {
+  _id: string;
+  nome: string;
+  quantidadeAlunos: number;
+  atividades: {
+    total: number;
+    feitas: number;
+    pendentes: number;
+    progresso: number;
+  };
+}
+
 const TURMAS: TurmaCard[] = [
   { id: 1, nome: "1º ano A", alunos: 8, atividades: 5 },
   { id: 2, nome: "2º ano A", alunos: 6, atividades: 4 },
@@ -60,12 +72,23 @@ function Home() {
   const [events, setEvents] = useState<Evento[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>("")
+  const [turmas, setTurmas] = useState<TurmaAPI[]>([]);
+
+  const totalAlunos = turmas.reduce(
+    (total, turma) => total + turma.quantidadeAlunos,
+    0
+  );
+
+  const totalPendentes = turmas.reduce(
+    (total, turma) => total + turma.atividades.pendentes,
+    0
+  );
 
   useEffect(() => {
     async function fetchTurma() {
       try {
-        const response = await api.get<Turma>("/professores/turma")
-        setTurma(response.data)
+        const response = await http.get<TurmaAPI[]>("/turmas?formato=completo");
+        setTurmas(response.data);
       } catch {
         console.error("Erro ao carregar turma")
       }
@@ -160,7 +183,7 @@ function Home() {
                     <span className="text-luna-peach">
                       <GraduationCap size={18} />
                     </span>
-                    {turma.totalAlunos} alunos
+                    {totalAlunos} alunos
                   </p>
 
                   <div className="w-2 h-2 bg-luna-peach/60 rounded-full"></div>
@@ -169,7 +192,7 @@ function Home() {
                     <span className="text-luna-peach">
                       <Users size={18} />
                     </span>
-                    {turma.totalTarefas} turmas
+                    {turmas.length} turmas
                   </p>
                 </div>
               </div>
@@ -208,7 +231,7 @@ function Home() {
                         </span>
                       </div>
                       <div className="flex items-center justify-center w-5 h-5 bg-luna-peach text-luna-teal font-sans font-semibold rounded-full text-sm">
-                        {turma.tarefasPendentes}
+                        {totalPendentes}
                       </div>
                     </div>
                   </div>
@@ -235,9 +258,9 @@ function Home() {
 
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
 
-              {TURMAS.map((turma) => (
+              {turmas.map((turma) => (
                 <div
-                  key={turma.id}
+                  key={turma._id}
                   className="flex min-h-52 flex-col rounded-xl bg-white p-5! shadow-md transition-transform duration-200 hover:-translate-y-1"
                 >
 
@@ -257,7 +280,7 @@ function Home() {
                       </span>
 
                       <span className="mt-1! text-base font-semibold text-luna-teal">
-                        {turma.alunos}
+                        {turma.quantidadeAlunos}
                       </span>
                     </div>
 
@@ -267,7 +290,7 @@ function Home() {
                       </span>
 
                       <span className="mt-1! text-base font-semibold text-luna-teal">
-                        {turma.atividades}
+                        {turma.atividades.total}
                       </span>
                     </div>
 
@@ -275,7 +298,7 @@ function Home() {
 
                   <button
                     onClick={() =>
-                      goTo(`/professores/turmaEspecifica/${turma.id}`)
+                      goTo(`/professores/turmaEspecifica/${turma._id}`)
                     }
                     className="mt-5! w-full rounded-lg bg-luna-teal py-2! text-sm font-semibold text-white transition-colors hover:bg-luna-teal/90"
                   >

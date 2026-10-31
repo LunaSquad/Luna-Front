@@ -1,3 +1,4 @@
+import axios from "axios";
 import fotoMariaClara from "../pages/professor/imagensAlunos/maria-clara.jpg"
 const dummyPdfUrl = "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
 
@@ -223,6 +224,28 @@ const atividadesMock = [
   }
 ];
 
+
+// --- CLIENTE HTTP REAL ---
+
+// Em desenvolvimento, a API backend roda na porta 4000.
+export const http = axios.create({
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000",
+  headers: {
+    Accept: "application/json",
+  },
+});
+
+// Envia o JWT automaticamente nas rotas protegidas.
+// No login, ainda não haverá token; por isso o header só é incluído quando existir.
+http.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
+});
 
 // --- API ---
 

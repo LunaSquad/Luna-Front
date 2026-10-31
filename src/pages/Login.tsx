@@ -4,7 +4,7 @@ import NavTitulo from "../components/escola/NavbarTitulo"
 import Button from "../components/escola/button"
 import Input from "../components/escola/input"
 import { Check, Circle, Mail, Eye, EyeClosed } from "lucide-react"
-import { api } from '../services/api';
+import { http } from '../services/api';
 
 function Login() {
     const [email, setEmail] = useState("")
@@ -25,19 +25,17 @@ function Login() {
         setCarregando(true)
 
         try {
-            const response = await api.post("/login", { email, senha });
+            const response = await http.post("/login", { email, senha });
 
             const usuario = response.data.usuario;
 
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("user", JSON.stringify(response.data.usuario));
-
-            if (usuario.tipoUser === "escola") {
-                navigate("/home");
-            } else if (usuario.tipoUser === "professor") {
+            
+            if (usuario.tipoUser === "professor") {
+                localStorage.setItem("token", response.data.token);
+                localStorage.setItem("user", JSON.stringify(response.data.usuario));
                 navigate("/professor/home");
             } else {
-                setErro("Tipo de utilizador desconhecido.");
+                setErro("Acesso Restrito Somente para Professores");
             }
 
         } catch (err: any) {
