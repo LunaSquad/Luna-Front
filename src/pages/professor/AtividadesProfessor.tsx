@@ -1,4 +1,6 @@
-import { useState, useRef } from "react";
+import { isAxiosError } from "axios";
+import { useState, useRef, useEffect } from "react";
+import { http } from "../../services/api";
 import { ClipboardList, Upload, Calendar, PenLine, X, Send, LibraryBig, ChevronDown } from "lucide-react";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import InfoHeader from "../../components/escola/InfoHeader";
@@ -6,12 +8,6 @@ import InfoHeader from "../../components/escola/InfoHeader";
 type Turma = {
   _id: string;
   nome: string;
-  professorId?: {
-    _id: string;
-    nome: string;
-    sobrenome: string;
-  };
-  qtdAlunos: number;
 };
 
 type Materia = {
@@ -19,14 +15,63 @@ type Materia = {
   nome: string;
 }
 
-async function enviarPlanoManual(dataAula: string, dataFechamento: string, horarioFechamento: string, turma: string, materia: string, titulo: string, detalhamento: string) {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano manual enviado:", { dataAula, dataFechamento, horarioFechamento, turma, materia, titulo, detalhamento });
+async function enviarPlanoManual(
+  dataAula: string,
+  dataFechamento: string,
+  horarioFechamento: string,
+  turma: string,
+  materia: string,
+  titulo: string,
+  detalhamento: string
+) {
+  const formData = new FormData();
+
+  const dadosPlanoDeAula = {
+    materiaId: materia,
+    turmaId: turma,
+    tipoConteudo: "manual",
+    titulo: titulo.trim(),
+    descricao: detalhamento.trim(),
+    dataAula,
+    dataFechamento,
+    horarioFechamento,
+  };
+
+  formData.append(
+    "dadosPlanoDeAula",
+    JSON.stringify(dadosPlanoDeAula)
+  );
+
+  await http.post("/planos-de-aula", formData);
 }
 
-async function enviarPlanoAnexo(dataAula: string, dataFechamento: string, horarioFechamento: string, turma: string, materia: string, arquivo: File) {
-  await new Promise((resolve) => setTimeout(resolve, 1500));
-  console.log("Plano por anexo enviado:", { dataAula, dataFechamento, horarioFechamento, turma, materia, arquivo: arquivo.name });
+async function enviarPlanoAnexo(
+  dataAula: string,
+  dataFechamento: string,
+  horarioFechamento: string,
+  turma: string,
+  materia: string,
+  arquivo: File
+) {
+  const formData = new FormData();
+
+  const dadosPlanoDeAula = {
+    materiaId: materia,
+    turmaId: turma,
+    tipoConteudo: "anexo",
+    dataAula,
+    dataFechamento,
+    horarioFechamento,
+  };
+
+  formData.append(
+    "dadosPlanoDeAula",
+    JSON.stringify(dadosPlanoDeAula)
+  );
+
+  formData.append("arquivo", arquivo);
+
+  await http.post("/planos-de-aula", formData);
 }
 
 export default function PlanoAula() {
@@ -44,48 +89,31 @@ export default function PlanoAula() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState('');
 
-  const turmasMock: Turma[] = [
-    {
-      _id: "1",
-      nome: "Desenvolvimento Web Avançado",
-      professorId: {
-        _id: "p1",
-        nome: "Carlos",
-        sobrenome: "Silva",
-      },
-      qtdAlunos: 25,
-    },
-    {
-      _id: "2",
-      nome: "Banco de Dados NoSQL",
-      professorId: {
-        _id: "p2",
-        nome: "Ana",
-        sobrenome: "Souza",
-      },
-      qtdAlunos: 18,
-    },
-    {
-      _id: "3",
-      nome: "Introdução ao UI/UX Design",
-      qtdAlunos: 30,
-    },
-  ];
+  const [turmas, setTurmas] = useState<Turma[]>([]);
+  const [materias, setMaterias] = useState<Materia[]>([]);
+  const [carregandoOpcoes, setCarregandoOpcoes] = useState(true);
 
-  const MateriaMock: Materia[] = [
-    {
-      _id: "1",
-      nome: "Português"
-    },
-    {
-      _id: "2",
-      nome: "Matemática"
-    },
-    {
-      _id: "3",
-      nome: "História"
-    },
-  ]
+  useEffect(() => {
+    async function carregarOpcoes() {
+      try {
+        const [resTurmas, resMaterias] = await Promise.all([
+          http.get<Turma[]>("/turmas?formato=simples"),
+          http.get<Materia[]>("/materias"),
+        ]);
+
+        setTurmas(resTurmas.data);
+        setMaterias(resMaterias.data);
+
+      } catch (error) {
+        console.error("Erro ao carregar opções:", error);
+        setErro("Não foi possível carregar turmas e matérias.");
+      } finally {
+        setCarregandoOpcoes(false);
+      }
+    }
+
+    carregarOpcoes();
+  }, []);
 
   const formatarMascaraData = (valor: string) => {
     let v = valor.replace(/\D/g, "");
@@ -157,9 +185,24 @@ export default function PlanoAula() {
       const dataFechamentoFormatada = converterParaBackend(dataFechamento);
 
       if (modo === 'manual') {
-        await enviarPlanoManual(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, materia, titulo, detalhamento);
+        await enviarPlanoManual(
+          dataAulaFormatada,
+          dataFechamentoFormatada,
+          horarioFechamento,
+          turma,
+          materia,
+          titulo,
+          detalhamento
+        );
       } else {
-        await enviarPlanoAnexo(dataAulaFormatada, horarioFechamento, dataFechamentoFormatada, turma, materia, arquivoSelecionado!);
+        await enviarPlanoAnexo(
+          dataAulaFormatada,
+          dataFechamentoFormatada,
+          horarioFechamento,
+          turma,
+          materia,
+          arquivoSelecionado!
+        );
       }
 
       setDataAula('');
@@ -173,7 +216,17 @@ export default function PlanoAula() {
 
       alert('Plano enviado com sucesso!');
     } catch (err) {
-      setErro(err instanceof Error ? err.message : 'Erro inesperado');
+      if (isAxiosError(err)) {
+        const detalhes = err.response?.data?.detalhes;
+
+        setErro(
+          detalhes?.[0]?.mensagem ||
+          err.response?.data?.erro ||
+          "Não foi possível cadastrar o plano de aula."
+        );
+      } else {
+        setErro(err instanceof Error ? err.message : "Erro inesperado");
+      }
     } finally {
       setCarregando(false);
     }
@@ -279,7 +332,7 @@ export default function PlanoAula() {
                     Selecione uma turma
                   </option>
 
-                  {turmasMock.map((tm) => (
+                  {turmas.map((tm) => (
                     <option key={tm._id} value={tm._id} className="text-luna-teal font-sans font-light bg-white">{tm.nome}</option>
                   ))}
 
@@ -305,9 +358,7 @@ export default function PlanoAula() {
                     Selecione uma matéria
                   </option>
 
-                  {MateriaMock.filter((mt, index, self) =>
-                    index === self.findIndex((t) => t.nome === mt.nome)
-                  ).map((mt) => (
+                  {materias.map((mt) => (
                     <option key={mt._id} value={mt._id} className="text-luna-teal font-sans font-light bg-white">
                       {mt.nome}
                     </option>
@@ -373,6 +424,7 @@ export default function PlanoAula() {
               <input
                 ref={inputArquivoRef}
                 type="file"
+                accept=".pdf,.jpg,.jpeg,.png,.webp"
                 style={{ display: 'none' }}
                 onChange={(e) => {
                   const arquivo = e.target.files?.[0];
@@ -385,7 +437,7 @@ export default function PlanoAula() {
               <p className="font-sans font-medium text-sm text-gray-700 text-center">
                 {arquivoSelecionado
                   ? arquivoSelecionado.name
-                  : <><span className="font-bold text-luna-teal cursor-pointer">Clique ou arraste o arquivo</span><br />PDF, DOC, DOCX ou imagens</>
+                  : <><span className="font-bold text-luna-teal cursor-pointer">Clique ou arraste o arquivo</span><br />PDF ou imagens (JPG, JPEG, PNG e WEBP) — até 5 MB</>
                 }
               </p>
             </div>
