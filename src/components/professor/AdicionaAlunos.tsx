@@ -2,17 +2,21 @@ import { Users, Plus, BookOpen } from "lucide-react";
 import Button from "../escola/button";
 
 type AdicionaAlunosProps = {
-    onButtonClick: () => void
-    buttonLabel: string
-    abaAtiva: string
-    setAbaAtiva: (aba: string) => void
+    onButtonClick: () => void;
+    buttonLabel: string;
+    abaAtiva: string;
+    setAbaAtiva: (aba: string) => void;
+    totalAlunos: number;
+    totalAtividades: number;
 }
 
 export default function AdicionaAlunos({
     onButtonClick,
     buttonLabel,
     abaAtiva,
-    setAbaAtiva
+    setAbaAtiva,
+    totalAlunos,
+    totalAtividades
 }: AdicionaAlunosProps) {
 
     
@@ -32,7 +36,7 @@ export default function AdicionaAlunos({
                         <Users size={20} />
                         Alunos
                         <span className="flex items-center justify-center bg-luna-teal/20 text-luna-teal !px-2 !py-1.5 rounded-full text-xs">
-                            10
+                            {totalAlunos}
                         </span>
                     </button>
 
@@ -46,7 +50,7 @@ export default function AdicionaAlunos({
                         <BookOpen size={20} /> 
                         Atividades
                         <span className="flex items-center justify-center bg-luna-teal/20 text-luna-teal !px-2.5 !py-1.5 rounded-full text-xs">
-                            3
+                            {totalAtividades}
                         </span>
                     </button>
                 </div>

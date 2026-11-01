@@ -8,6 +8,7 @@ import {
     Link as LinkIcon,
 } from "lucide-react";
 import { QRCode } from "react-qrcode-logo";
+import { isAxiosError } from "axios";
 
 interface Turma {
     _id: string;
@@ -19,7 +20,7 @@ interface EditarTurmaProps {
     onClose: () => void;
     turma: Turma | null;
     inviteLink: string;
-    onSalvar: (id: string, novoNome: string) => void;
+    onSalvar: (id: string, novoNome: string) => Promise<void>;
 }
 
 export default function EditarTurma({
@@ -31,17 +32,18 @@ export default function EditarTurma({
 }: EditarTurmaProps) {
     const [nomeTurma, setNomeTurma] = useState("");
     const [copiado, setCopiado] = useState(false);
+    const [salvando, setSalvando] = useState(false);
 
     // Atualiza o campo quando outra turma é selecionada
     useEffect(() => {
-        if (turma) {
-            // setNomeTurma(turma.nome);
+        if (isOpen && turma) {
+            setNomeTurma(turma.nome);
         }
-    }, [turma]);
+    }, [isOpen, turma]);
 
     if (!isOpen || !turma) return null;
 
-    const handleSalvar = (e: React.FormEvent<HTMLFormElement>) => {
+    const handleSalvar = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
 
         const nome = nomeTurma.trim();
@@ -51,8 +53,26 @@ export default function EditarTurma({
             return;
         }
 
-        onSalvar(turma._id, nome);
-        onClose();
+        try {
+            setSalvando(true);
+
+            await onSalvar(turma._id, nome);
+
+            onClose();
+
+        } catch (error) {
+            const dadosErro = isAxiosError(error)
+                ? error.response?.data as { erro?: string } | undefined
+                : undefined;
+
+            const mensagem = dadosErro?.erro ||
+                (error instanceof Error ? error.message : undefined);
+
+            alert(mensagem || "Não foi possível atualizar a turma.");
+
+        } finally {
+            setSalvando(false);
+        }
     };
 
     const handleCopiarLink = async () => {
@@ -202,8 +222,9 @@ export default function EditarTurma({
                 <button
                     type="submit"
                     className="w-full !mt-5 !py-2.5 rounded-lg bg-luna-teal text-white font-sans font-semibold cursor-pointer border-none hover:opacity-90 transition"
+                    disabled={salvando}
                 >
-                    Salvar alterações
+                    {salvando ? "Salvando..." : "Salvar alterações"}
                 </button>
             </form>
         </div>
