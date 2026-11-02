@@ -74,136 +74,145 @@ function Cadastro() {
         }
     }
 
+    const campo = "relative w-full flex flex-col font-sans"
+    const icone = "absolute right-0 bottom-2 pointer-events-none text-luna-teal size-[18px] 4xl:size-8"
+
     return (
-        <div className="relative w-full h-full bg-[#fdfdf8] flex items-center gap-[250px] overflow-hidden">
+        <div className="relative min-h-screen w-full bg-[#fdfdf8] flex flex-col lg:flex-row">
             <NavTitulo />
 
-            <div className="flex flex-col justify-start !py-[100px] !px-[30px] bg-luna-teal h-screen rounded-tr-3xl rounded-br-3xl font-sans [font-optical-sizing:auto] shadow-lg gap-[40px] shrink-0">
-                <div className="flex items-center bg-luna-cabecalho-dois h-0 w-[300px] !p-4 font-light text-base text-luna-peach rounded-full gap-2">
-                    <Circle size={16} fill="#D9D9D9" />
-                    <p>
-                        PLATAFORMA EDUCACIONAL
-                    </p>
+            <aside className="hidden lg:flex flex-col justify-center bg-luna-teal lg:w-[42%] xl:w-[34%] min-h-screen rounded-r-3xl 4xl:rounded-r-[48px] font-sans [font-optical-sizing:auto] shadow-lg gap-10 4xl:gap-18 !px-8 4xl:!px-10 !py-14 shrink-0">
+                <div className="flex items-center bg-luna-cabecalho-dois w-fit !px-4 !py-2 4xl:!px-7 4xl:!py-3 font-light text-base 4xl:text-2xl text-luna-peach rounded-full gap-2 4xl:gap-4">
+                    <Circle className="size-4 4xl:size-7" fill="#D9D9D9" />
+                    <p>PLATAFORMA EDUCACIONAL</p>
                 </div>
 
-                <h1 className="text-white text-5xl w-[360px] font-semibold ">
+                <h1 className="text-white text-4xl xl:text-5xl 3xl:text-6xl 4xl:text-7xl max-w-[360px] 3xl:max-w-[480px] 4xl:max-w-[500px] font-semibold">
                     Educação que <span className="text-luna-peach italic font-light">acolhe</span> cada aluno.
                 </h1>
 
-                <p className="text-white text-base w-[330px] !mb-6">
+                <p className="text-white text-base 3xl:text-xl 4xl:text-3xl max-w-[330px] 3xl:max-w-[440px] 4xl:max-w-[550px] 4xl:!mb-8">
                     Uma experiência para professores que valorizam cada aluno e promovem uma educação inclusiva.
                 </p>
 
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Acompanhamento focado em neurodiversidade
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Ferramentas de suporte à acessibilidade
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Gestão humanizada de alunos e turmas
-                        </p>
-                    </div>
+                <div className="flex flex-col gap-4 4xl:gap-7">
+                    {[
+                        "Acompanhamento focado em neurodiversidade",
+                        "Ferramentas de suporte à acessibilidade",
+                        "Gestão humanizada de alunos e turmas",
+                    ].map((texto) => (
+                        <div key={texto} className="flex items-center gap-3 4xl:gap-5 text-white text-base 3xl:text-xl 4xl:text-3xl">
+                            <span className="flex items-center justify-center rounded-[2px] !p-0.5 4xl:!p-1 font-bold bg-luna-cabecalho-dois">
+                                <Check className="size-4 4xl:size-8" />
+                            </span>
+                            <p>{texto}</p>
+                        </div>
+                    ))}
                 </div>
-            </div>
+            </aside>
 
-            <div className="flex-1 w-full flex flex-col items-center justify-center pl-6! pr-6! lg:pl-8! lg:pr-12! xl:pl-10! xl:pr-40! -translate-y-8">
-                <form onSubmit={handleSubmit} className="w-full max-w-3xl flex flex-col items-center px-4">
-                    <div className="w-full flex flex-col gap-4">
-                        <div className="w-full self-start flex flex-col items-start text-left">
-                            <h2 className="font-semibold text-[32px] text-luna-teal leading-tight">Cadastro</h2>
-                            <p className="text-brand-gray font-light text-[14px] text-gray-400">Preencha com seus Dados</p>
+            <main className="flex-1 flex flex-col items-center justify-center !px-6 !py-24 lg:!py-10">
+                <form
+                    onSubmit={handleSubmit}
+                    className="w-full max-w-2xl 3xl:max-w-4xl 4xl:max-w-6xl flex flex-col items-center gap-6 4xl:gap-12"
+                >
+                    <div className="w-full flex flex-col items-start text-left gap-1 4xl:gap-3 font-sans">
+                        <h2 className="font-semibold text-3xl 3xl:text-5xl 4xl:text-7xl text-luna-teal leading-tight">Cadastro</h2>
+                        <p className="font-light text-sm 3xl:text-xl 4xl:text-3xl text-gray-400">Preencha com seus Dados</p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-10 lg:gap-x-16 4xl:gap-x-28 gap-y-4 4xl:gap-y-10 w-full">
+                        <div className={campo}>
+                            <Input id="nome" label="Nome" type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
+                            <UserPen className={icone} />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-x-20 gap-y-4 w-full">
-                            <div className="flex flex-col gap-4">
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="nome" label="Nome" type="text" placeholder="Nome" value={nome} onChange={(e) => setNome(e.target.value)} required />
-                                    <UserPen size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="cpf" label="CPF" type="text" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.target.value)} required />
-                                    <IdCard size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="email" label="E-mail" type="email" placeholder="professor@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-                                    <Mail size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="telefone" label="Telefone" type="text" placeholder="(00)00000-0000" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
-                                    <Smartphone size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                            </div>
+                        <div className={campo}>
+                            <Input id="sobrenome" label="Sobrenome" type="text" placeholder="Sobrenome" value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} required />
+                            <UserPen className={icone} />
+                        </div>
 
-                            <div className="flex flex-col gap-4">
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="sobrenome" label="Sobrenome" type="text" placeholder="Sobrenome" value={sobrenome} onChange={(e) => setSobrenome(e.target.value)} required />
-                                    <UserPen size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="cidade" label="Cidade" type="text" placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
-                                    <Building2 size={18} className="absolute right-0 bottom-2 pointer-events-none text-luna-teal" />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input id="dataNasc" label="Data de Nascimento" type="date" value={dataNasc} onChange={(e) => setDataNasc(e.target.value)} required />
-                                </div>
-                                <div className="relative w-full flex flex-col">
-                                    <Input
-                                        id="senha"
-                                        label="Senha"
-                                        type={verSenha ? "text" : "password"}
-                                        placeholder="Senha"
-                                        value={senha}
-                                        onChange={(e) => setSenha(e.target.value)}
-                                        required
-                                    />
-                                    <div className="absolute right-0 bottom-0 cursor-pointer text-luna-teal" onClick={toggleSenha}>
-                                        {verSenha ? <Eye size={18} /> : <EyeClosed size={18} />}
-                                    </div>
-                                </div>
+                        <div className={campo}>
+                            <Input
+                                id="cpf"
+                                label="CPF"
+                                type="text"
+                                placeholder="000.000.000-00"
+                                value={cpf}
+                                onChange={(e) => setCpf(e.target.value)}
+                                required
+                            />
+                            <IdCard className={icone} />
+                        </div>
+
+                        <div className={campo}>
+                            <Input id="cidade" label="Cidade" type="text" placeholder="Cidade" value={cidade} onChange={(e) => setCidade(e.target.value)} required />
+                            <Building2 className={icone} />
+                        </div>
+
+                        <div className={campo}>
+                            <Input id="email" label="E-mail" type="email" placeholder="professor@gmail.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
+                            <Mail className={icone} />
+                        </div>
+
+                        <div className={campo}>
+                            <Input
+                                id="dataNasc"
+                                label="Data de Nascimento"
+                                type="date"
+                                value={dataNasc}
+                                onChange={(e) => setDataNasc(e.target.value)}
+                                required
+                            />
+                            <Calendar className={icone} />
+                        </div>
+
+                        <div className={campo}>
+                            <Input id="telefone" label="Telefone" type="text" placeholder="(00)00000-0000" value={telefone} onChange={(e) => setTelefone(e.target.value)} required />
+                            <Smartphone className={icone} />
+                        </div>
+
+                        <div className={campo}>
+                            <Input
+                                id="senha"
+                                label="Senha"
+                                type={verSenha ? "text" : "password"}
+                                placeholder="Senha"
+                                value={senha}
+                                onChange={(e) => setSenha(e.target.value)}
+                                required
+                            />
+                            <div className="absolute right-0 bottom-2 cursor-pointer text-luna-teal" onClick={toggleSenha}>
+                                {verSenha
+                                    ? <Eye className="size-[18px] 4xl:size-10" />
+                                    : <EyeClosed className="size-[18px] 4xl:size-8" />}
                             </div>
                         </div>
                     </div>
 
-                    <div className="mt-3! flex flex-col items-center w-full gap-2">
-                        <UploadImagem
-                            label="Imagem do Rosto do Docente"
-                            onChange={(file) => setImagem(file)}
-                        />
-                    </div>
+                    <UploadImagem
+                        label="Imagem do Rosto do Docente"
+                        onChange={(file) => setImagem(file)}
+                    />
 
-                    {erro && <p className="text-red-500 text-sm mt-2">{erro}</p>}
+                    {erro && <p className="text-red-500 text-sm 4xl:text-2xl">{erro}</p>}
 
-                    <div className="mt-7! flex justify-center w-full">
-                        <Button
-                            type="submit"
-                            className="w-44 !p-2.5 max-w-md bg-luna-teal border-none text-white rounded-xl font-sans font-bold text-2xl"
-                            disabled={carregando}
-                        >
-                            {carregando ? "Cadastrando..." : "Cadastrar"}
-                        </Button>
-                    </div>
+                    <Button
+                        type="submit"
+                        className="w-50 3xl:w-52 4xl:w-72 !p-2.5 4xl:!p-4 bg-luna-teal border-none text-white rounded-xl 4xl:rounded-2xl font-sans font-bold text-2xl 4xl:text-4xl cursor-pointer"
+                        disabled={carregando}
+                    >
+                        {carregando ? "Cadastrando..." : "Cadastrar"}
+                    </Button>
+
+                    <p className="font-sans text-base 3xl:text-xl 4xl:text-3xl text-center">
+                        Já possui conta?{" "}
+                        <Link to="/" className="text-luna-teal font-semibold no-underline">
+                            Entrar!
+                        </Link>
+                    </p>
                 </form>
-
-                <p className="mt-4! text-base text-brand-gray text-center">
-                    Já possui conta? <span><Link to="/" className="text-luna-teal font-semibold no-underline">Entrar!</Link></span>
-                </p>
-            </div>
+            </main>
         </div>
     )
 }

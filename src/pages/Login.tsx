@@ -47,61 +47,47 @@ function Login() {
 
 
     return (
-
-        <div className="relative w-full h-full bg-[#fdfdf8] flex items-center gap-[250px] overflow-hidden">
+        <div className="relative min-h-screen w-full bg-[#fdfdf8] flex flex-col lg:flex-row">
             <NavTitulo />
 
-            <div className="flex flex-col justify-start !py-[100px] !px-[30px] bg-luna-teal h-screen rounded-tr-3xl rounded-br-3xl font-sans [font-optical-sizing:auto] shadow-lg gap-[40px] shrink-0">
-                <div className="flex items-center bg-luna-cabecalho-dois h-0 w-[300px] !p-4 font-light text-base text-luna-peach rounded-full gap-2">
-                    <Circle size={16} fill="#D9D9D9" />
-                    <p>
-                        PLATAFORMA EDUCACIONAL
-                    </p>
+            <aside className="hidden lg:flex flex-col justify-center bg-luna-teal lg:w-[42%] xl:w-[34%] min-h-screen rounded-r-3xl 4xl:rounded-r-[48px] font-sans [font-optical-sizing:auto] shadow-lg gap-10 4xl:gap-18 !px-8 4xl:!px-10 !py-14 shrink-0">
+                <div className="flex items-center bg-luna-cabecalho-dois w-fit !px-4 !py-2 4xl:!px-7 4xl:!py-3 font-light text-base 4xl:text-2xl text-luna-peach rounded-full gap-2 4xl:gap-4">
+                    <Circle className="size-4 4xl:size-7" fill="#D9D9D9" />
+                    <p>PLATAFORMA EDUCACIONAL</p>
                 </div>
 
-                <h1 className="text-white text-5xl w-[360px] font-semibold ">
+                <h1 className="text-white text-4xl xl:text-5xl 3xl:text-6xl 4xl:text-7xl max-w-[360px] 3xl:max-w-[480px] 4xl:max-w-[500px] font-semibold">
                     Educação que <span className="text-luna-peach italic font-light">acolhe</span> cada aluno.
                 </h1>
 
-                <p className="text-white text-base w-[330px] !mb-6">
+                <p className="text-white text-base 3xl:text-xl 4xl:text-3xl max-w-[330px] 3xl:max-w-[440px] 4xl:max-w-[550px] 4xl:!mb-8">
                     Uma experiência para professores que valorizam cada aluno e promovem uma educação inclusiva.
                 </p>
 
-                <div className="flex flex-col gap-4">
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Acompanhamento focado em neurodiversidade
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Ferramentas de suporte à acessibilidade
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3 text-white text-base">
-                        <p className="flex items-center justify-center rounded-[2px] !p-0.5 font-bold bg-luna-cabecalho-dois">
-                            <Check size={16} />
-                        </p>
-                        <p>
-                            Gestão humanizada de alunos e turmas
-                        </p>
-                    </div>
+                <div className="flex flex-col gap-4 4xl:gap-7">
+                    {[
+                        "Acompanhamento focado em neurodiversidade",
+                        "Ferramentas de suporte à acessibilidade",
+                        "Gestão humanizada de alunos e turmas",
+                    ].map((texto) => (
+                        <div key={texto} className="flex items-center gap-3 4xl:gap-5 text-white text-base 3xl:text-xl 4xl:text-3xl">
+                            <span className="flex items-center justify-center rounded-[2px] !p-0.5 4xl:!p-1 font-bold bg-luna-cabecalho-dois">
+                                <Check className="size-4 4xl:size-8" />
+                            </span>
+                            <p>{texto}</p>
+                        </div>
+                    ))}
                 </div>
-            </div>
+            </aside>
 
-            <div className="relative flex justify-start items-center flex-col !p-5 bg-transparent w-full max-w-150 h-137 rounded-lg gap-12">
-                <div className="flex flex-col w-75 font-sans gap-1.5">
-                    <h2 className="font-semibold text-3xl text-luna-teal">Entrar</h2>
-                    <p className="font-normal text-base text-gray-400">Acesse sua conta</p>
+            <main className="flex-1 flex flex-col items-center justify-center gap-10 4xl:gap-16 !px-6 !py-24 lg:!py-10">
+                <div className="flex flex-col w-full max-w-xs 3xl:max-w-md 4xl:max-w-2xl gap-1.5 4xl:gap-3 font-sans">
+                    <h2 className="font-semibold text-3xl 3xl:text-5xl 4xl:text-7xl text-luna-teal">Entrar</h2>
+                    <p className="font-normal text-base 3xl:text-xl 4xl:text-3xl text-gray-400">Acesse sua conta</p>
                 </div>
-                <form onSubmit={handleSubmit} className="flex justify-start min-w-75 gap-10 flex-col">
-                    <div className="relative flex flex-col gap-5.5 w-75 font-sans [font-optical-sizing:auto] font-bold font-normal text-lg text-luna-teal">
+
+                <form onSubmit={handleSubmit} className="flex flex-col w-full max-w-xs 3xl:max-w-md 4xl:max-w-2xl gap-14 4xl:gap-24">
+                    <div className="relative flex flex-col font-sans [font-optical-sizing:auto] font-bold text-lg 3xl:text-2xl 4xl:text-4xl text-luna-teal">
                         <Input
                             id="email"
                             label="E-mail"
@@ -110,9 +96,10 @@ function Login() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
-                        <Mail size={18} className="absolute right-0 bottom-2 pointer-events-none" />
+                        <Mail className="absolute right-0 bottom-2 pointer-events-none size-[18px] 4xl:size-8" />
                     </div>
-                    <div className="relative flex flex-col gap-5.5 w-75 font-sans [font-optical-sizing:auto] font-bold font-normal text-lg text-luna-teal">
+
+                    <div className="relative flex flex-col font-sans [font-optical-sizing:auto] font-bold text-lg 3xl:text-2xl 4xl:text-4xl text-luna-teal">
                         <Input
                             id="senha"
                             label="Senha"
@@ -122,16 +109,18 @@ function Login() {
                             onChange={(e) => setSenha(e.target.value)}
                         />
                         <div className="absolute right-0 bottom-2 cursor-pointer" onClick={toggleSenha}>
-                            {verSenha ? <EyeClosed size={18} /> : <Eye size={18} />}
+                            {verSenha
+                                ? <EyeClosed className="size-[18px] 4xl:size-8" />
+                                : <Eye className="size-[18px] 4xl:size-8" />}
                         </div>
                     </div>
 
-                    {erro && <p>{erro}</p>}
+                    {erro && <p className="text-red-500 text-sm 4xl:text-2xl">{erro}</p>}
 
-                    <div className="flex justify-center h-10 !mt-5">
+                    <div className="flex justify-center">
                         <Button
                             type="submit"
-                            className="w-32.5 border-none rounded-xl bg-luna-teal text-white font-sans [font-optical-sizing:auto] font-bold text-xl cursor-pointer"
+                            className="w-40 3xl:w-52 4xl:w-72 !p-2 4xl:!p-4 border-none rounded-xl 4xl:rounded-2xl bg-luna-teal text-white font-sans [font-optical-sizing:auto] font-bold text-xl 3xl:text-2xl 4xl:text-4xl cursor-pointer"
                             disabled={carregando}
                         >
                             {carregando ? "Entrando..." : "Acessar"}
@@ -139,17 +128,14 @@ function Login() {
                     </div>
                 </form>
 
-                <p className="font-sans font-light">Novo por aqui? <span className="text-luna-teal font-bold no-underline">
-                    <Link to="/cadastro">
+                <p className="font-sans font-light 3xl:text-xl 4xl:text-3xl">
+                    Novo por aqui?{" "}
+                    <Link to="/cadastro" className="text-luna-teal font-bold no-underline">
                         Cadastre-se
                     </Link>
-                </span>
                 </p>
-            </div>
-
+            </main>
         </div>
-
-
     )
 }
 
