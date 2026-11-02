@@ -15,10 +15,11 @@ function UploadImagem({ label, onChange }: UploadImagemProps) {
 
   return (
     <div className="flex text-center items-center flex-col gap-1.5 font-sans">
-      <label className="font-bold text-lg text-luna-teal no-underline">{label}
+      <label className="font-bold text-lg text-luna-teal no-underline 4xl:text-2xl">
+        {label}
       </label>
 
-      <label className="relative w-38 h-10 border-2 border-dashed border-luna-teal rounded-xl flex items-center justify-center text-center cursor-pointer">
+      <label className="relative w-43 3xl:w-52 4xl:w-60 h-10 4xl:h-13 border-2 border-dashed border-luna-teal rounded-xl flex items-center justify-center text-center cursor-pointer">
         <input
           type="file"
           accept="image/*"
@@ -27,7 +28,7 @@ function UploadImagem({ label, onChange }: UploadImagemProps) {
         />
 
         <span className="text-center text-luna-teal">
-          <ImagePlus size={22} />
+          <ImagePlus className="size-[18px] 4xl:size-8" />
         </span>
       </label>
     </div>
