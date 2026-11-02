@@ -1,6 +1,20 @@
-import { Calendar, ChevronRight } from "lucide-react"
-import { useState, useEffect } from "react";
-import { api } from "../../services/api";
+import { Calendar, ChevronRight } from "lucide-react";
+import { useState } from "react";
+
+export interface PlanoDeAulaTurma {
+  _id: string;
+  materiaId: {
+    _id: string;
+    nome: string;
+  } | null;
+  tipoConteudo: "manual" | "anexo";
+  titulo: string | null;
+  descricao: string | null;
+  dataAula: string;
+  dataFechamento: string;
+  urlPlanoDeAula: string | null;
+  statusTurma: "concluida" | "pendente";
+}
 
 interface Atividade {
   _id: string;
@@ -9,9 +23,12 @@ interface Atividade {
   titulo: string;
   descricao: string;
   data: string;
+  statusTurma: "concluida" | "pendente";
+  urlPlanoDeAula: string | null;
 }
 
 interface ListaAtividadesProps {
+  planos: PlanoDeAulaTurma[];
   onSelecionarAtividade?: (atividade: Atividade) => void;
 }
 
@@ -23,50 +40,93 @@ const configMaterias: Record<string, { main: string, bg: string, badgeBg?: strin
   CIE: { main: "#064E1D", bg: "#E6F5EA", badgeBg: "#A7E2B5" },
 };
 
-function ListaAtividades({ onSelecionarAtividade }: ListaAtividadesProps) {
+function obterSiglaMateria(nome: string): string {
+  const normalizado = nome
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
 
-  const [atividades, setAtividades] = useState<Atividade[]>([]);
-  const [carregando, setCarregando] = useState(true);
+  const siglas: Record<string, string> = {
+    "lingua portuguesa": "LP",
+    "portugues": "LP",
+    "matematica": "MAT",
+    "geografia": "GEO",
+    "historia": "HIS",
+    "ciencias": "CIE",
+  };
+
+  if (siglas[normalizado]) {
+    return siglas[normalizado];
+  }
+
+  return (
+    nome
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((palavra) => palavra[0])
+      .join("")
+      .slice(0, 3)
+      .toUpperCase() || "OUT"
+  );
+}
+
+function formatarData(data: string): string {
+  const dataConvertida = new Date(data);
+
+  if (Number.isNaN(dataConvertida.getTime())) {
+    return "-";
+  }
+
+  return dataConvertida.toLocaleDateString("pt-BR", {
+    timeZone: "UTC",
+  });
+}
+
+function ListaAtividades({
+  planos,
+  onSelecionarAtividade
+}: ListaAtividadesProps) {
+
   const [filtroAtivo, setFiltroAtivo] = useState<string>("Todos");
 
-  useEffect(() => {
-    const buscarDados = async () => {
-      try {
-        setCarregando(true);
-        const response = await api.getAtividades();
-        setAtividades(response.data);
-      } catch (erro) {
-        console.error("Erro ao carregar atividades:", erro);
-      } finally {
-        setCarregando(false);
-      }
-    };
+  const atividades: Atividade[] = planos.map((plano) => {
+    const materia = plano.materiaId?.nome ?? "Matéria não identificada";
 
-    buscarDados();
-  }, []);
+    return {
+      _id: plano._id,
+      materia,
+      sigla: obterSiglaMateria(materia),
+      titulo: plano.titulo || "Plano de aula",
+      descricao:
+        plano.descricao ||
+        (plano.tipoConteudo === "anexo"
+          ? "Arquivo anexado"
+          : "Sem descrição"),
+      data: formatarData(plano.dataAula),
+      statusTurma: plano.statusTurma,
+      urlPlanoDeAula: plano.urlPlanoDeAula,
+    };
+  });
+
+  const siglasDisponiveis: string[] = Array.from(
+    new Set([
+      ...Object.keys(configMaterias),
+      ...atividades.map((atividade) => atividade.sigla),
+    ])
+  );
 
   const atividadesFiltradas = filtroAtivo === "Todos"
     ? atividades
-    : atividades.filter(ativ => ativ.sigla === filtroAtivo)
+    : atividades.filter((ativ) => ativ.sigla === filtroAtivo);
 
-  const contagemPorMateria = atividades.reduce((acc, ativ) => {
-    acc[ativ.sigla] = (acc[ativ.sigla] || 0) + 1
-    return acc;
-  }, {} as Record<string, number>);
+  const contagemPorMateria = atividades.reduce(
+    (acc, ativ) => {
+      acc[ativ.sigla] = (acc[ativ.sigla] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>
+  );
 
-  if (carregando) {
-    return (
-      <div className="flex justify-center items-center !py-20 text-luna-teal">
-        <div className="animate-pulse flex flex-col items-center gap-3">
-          <div className="w-8 h-8 border-4 border-luna-teal border-t-transparent rounded-full animate-spin">
-          </div>
-          <p className="font-medium">
-            Carregando atividades...
-          </p>
-        </div>
-      </div>
-    )
-  }
 
 
 
@@ -85,7 +145,8 @@ function ListaAtividades({ onSelecionarAtividade }: ListaAtividadesProps) {
           Todos
         </button>
 
-        {Object.entries(configMaterias).map(([sigla, cores]) => {
+        {siglasDisponiveis.map((sigla) => {
+          const cores = configMaterias[sigla] ?? configMaterias.LP;
           const quantidade = contagemPorMateria[sigla] || 0;
           const isAtivo = filtroAtivo === sigla;
 

@@ -1,81 +1,201 @@
 import { useState, useEffect } from "react";
-import { useNavigate, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { Users, BookOpen, FileText, ChevronRight, CheckCircle2 } from "lucide-react";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
 import Table from "../../components/escola/TableInformations";
 import ConviteAluno from "../../components/professor/ConviteAluno";
-import ListaAtividades from "../../components/professor/ListaAtividades";
+import ListaAtividades, {
+    type PlanoDeAulaTurma
+} from "../../components/professor/ListaAtividades";
 import AtividadeEspecifica from "../../components/professor/AtividadeEspecifica";
-import { api } from "../../services/api";
+import { http } from "../../services/api";
 
-type SituacaoAluno = "Excelente" | "Atenção" | "Bom";
+type SituacaoAluno = "Excelente" | "Atenção" | "Bom" | "Sem atividades";
 
 type Aluno = {
     _id: string;
     nome: string;
-    avatarUrl: string;
-    ra: string;
+    cpf: string;
+    urlFotoAluno: string;
     urlFotoLaudo?: string;
     desempenho: number;
     situacao: SituacaoAluno;
 };
 
+type TurmaDetalhe = {
+    _id: string;
+    nome: string;
+    codigoConvite: string;
+    linkConvite: string;
+    resumo: {
+        totalAlunos: number;
+        totalAtividades: number;
+        pendentes: number;
+    };
+    alunos: Aluno[];
+    atividades: PlanoDeAulaTurma[];
+};
+
+type StatusEntrega = "Entregue" | "Corrigido" | "Pendente";
+
+interface AlunoAtividadePlano {
+    _id: string;
+    nome: string;
+    cpf: string;
+    urlFotoAluno: string | null;
+    status: StatusEntrega;
+    atividadeId: string | null;
+}
+
+interface AtividadesPlanoResponse {
+    plano: {
+        _id: string;
+        titulo: string;
+        descricao: string;
+        materia: string;
+        dataAula: string;
+        dataFechamento: string;
+    };
+    resumo: {
+        corrigidas: number;
+        pendentes: number;
+        total: number;
+    };
+    alunos: AlunoAtividadePlano[];
+}
+
 export default function TurmaEspecifica() {
 
     const { id } = useParams();
 
-    const [alunos, setAlunos] = useState<Aluno[]>([])
-    const [modalAberto, setModalAberto] = useState(false)
-    const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null)
-    const navigate = useNavigate();
-    const location = useLocation();
-    const turma = location.state?.turma;
+    const [turmaDetalhe, setTurmaDetalhe] = useState<TurmaDetalhe | null>(null);
+
+    const alunos = turmaDetalhe?.alunos ?? [];
+
+    const [modalAberto, setModalAberto] = useState(false);
+    const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
+
     const [searchParams] = useSearchParams();
 
     const [abaAtiva, setAbaAtiva] = useState(
         searchParams.get("aba") === "atividades" ? "atividades" : "alunos"
     );
+
     const [atividadeSelecionada, setAtividadeSelecionada] = useState<any>(null);
+    const [dadosAtividadePlano, setDadosAtividadePlano] = useState<AtividadesPlanoResponse | null>(null);
+    const [carregandoAtividadePlano, setCarregandoAtividadePlano] = useState(false);
+    const [erroAtividadePlano, setErroAtividadePlano] = useState("");
+
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
-    const [isLoading, setIsLoading] = useState(true)
-    // utilizar o link original
-    const linkDeConvite = "https://sua-plataforma.com/turma-3anoA-luna";
+    const [isLoading, setIsLoading] = useState(true);
+
+    const linkDeConvite = turmaDetalhe?.linkConvite ?? "";
 
     // Cards normais da Turma
     const dadosCardsTurma = [
-        { id: 1, icone: <Users size={24} />, valor: "10", label: "ALUNOS", alerta: false },
-        { id: 2, icone: <BookOpen size={24} />, valor: "2", label: "PENDENTES", alerta: true },
-        { id: 3, icone: <FileText size={24} />, valor: "3", label: "ATIVIDADES", alerta: false },
+        {
+            id: 1,
+            icone: <Users size={24} />,
+            valor: String(turmaDetalhe?.resumo.totalAlunos ?? 0),
+            label: "ALUNOS",
+            alerta: false
+        },
+        {
+            id: 2,
+            icone: <BookOpen size={24} />,
+            valor: String(turmaDetalhe?.resumo.pendentes ?? 0),
+            label: "PENDENTES",
+            alerta: true
+        },
+        {
+            id: 3,
+            icone: <FileText size={24} />,
+            valor: String(turmaDetalhe?.resumo.totalAtividades ?? 0),
+            label: "ATIVIDADES",
+            alerta: false
+        },
     ];
 
     // Cards quando entra na Atividade Específica (reaproveita a mesma estrutura de cards!)
     const dadosCardsAtividade = [
-        { id: 1, icone: <CheckCircle2 size={24} />, valor: "5", label: "CORRIGIDAS", alerta: false },
-        { id: 2, icone: <BookOpen size={24} />, valor: "2", label: "PENDENTES", alerta: true },
-        { id: 3, icone: <Users size={24} />, valor: "10", label: "ENTREGUES", alerta: false },
+        {
+            id: 1,
+            icone: <CheckCircle2 size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.corrigidas ?? 0),
+            label: "CORRIGIDAS",
+            alerta: false
+        },
+        {
+            id: 2,
+            icone: <BookOpen size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.pendentes ?? 0),
+            label: "PENDENTES",
+            alerta: true
+        },
+        {
+            id: 3,
+            icone: <Users size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.total ?? 0),
+            label: "ENTREGUES",
+            alerta: false
+        },
     ];
 
     const dadosCards = abaAtiva === 'correcao' ? dadosCardsAtividade : dadosCardsTurma;
 
     useEffect(() => {
-        const carregarAlunos = async () => {
+        const carregarTurma = async () => {
+            if (!id) {
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 setIsLoading(true);
-                if (id) {
-                    const response = await api.getAlunosPorTurma(id) as { data: Aluno[] };
-                    setAlunos(response.data);
-                }
+
+                const response = await http.get<TurmaDetalhe>(`/turmas/${id}`);
+
+                setTurmaDetalhe(response.data);
+
             } catch (error) {
-                console.error("Erro ao carregar Alunos", error);
+                console.error("Erro ao carregar turma:", error);
+                setTurmaDetalhe(null);
+
             } finally {
-                setIsLoading(false)
+                setIsLoading(false);
             }
         };
-        carregarAlunos();
+
+        carregarTurma();
     }, [id]);
+
+    const selecionarPlano = async (plano: { _id: string; titulo: string }) => {
+        setAtividadeSelecionada(plano);
+        setDadosAtividadePlano(null);
+        setErroAtividadePlano("");
+        setCarregandoAtividadePlano(true);
+        setAbaAtiva("correcao");
+
+        try {
+            const response = await http.get<AtividadesPlanoResponse>(
+                `/atividades/plano/${plano._id}`
+            );
+
+            setDadosAtividadePlano(response.data);
+
+        } catch (error) {
+            console.error("Erro ao carregar atividades do plano:", error);
+            setErroAtividadePlano(
+                "Não foi possível carregar os alunos e suas atividades."
+            );
+
+        } finally {
+            setCarregandoAtividadePlano(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -97,7 +217,7 @@ export default function TurmaEspecifica() {
             accessor: "nome",
             render: (row: Aluno) => (
                 <div className="flex items-center gap-3">
-                    <img src={row.avatarUrl} alt="Foto do ALuno" className="h-10 w-10 rounded-full object-cover" />
+                    <img src={row.urlFotoAluno} alt="Foto do aluno" className="h-10 w-10 rounded-full object-cover" />
                     <span className="font-sans font-medium">{row.nome}</span>
                 </div>
             ),
@@ -105,14 +225,14 @@ export default function TurmaEspecifica() {
         {
             header: (
                 <div className="flex justify-center items-center w-full">
-                    RA
+                    CPF
                 </div>
             ),
             accessor: "ra",
             render: (row: Aluno) => (
                 <div className="flex justify-center items-center w-full">
                     <span className="inline-block font-sans font-medium">
-                        {row.ra}
+                        {row.cpf}
                     </span>
                 </div>
             ),
@@ -221,8 +341,12 @@ export default function TurmaEspecifica() {
                 <div className="flex flex-col gap-6 w-90">
                     <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
                         {abaAtiva === 'correcao'
-                            ? (atividadeSelecionada?.nome || "Soma")
-                            : (turma?.nome || "Turma não encontrada")}
+                            ? (
+                                dadosAtividadePlano?.plano.titulo ||
+                                atividadeSelecionada?.titulo ||
+                                "Atividade"
+                            )
+                            : (turmaDetalhe?.nome || "Turma não encontrada")}
                     </h2>
                     <p className="m-0 font-sans font-light">
                         {abaAtiva === 'correcao'
@@ -278,6 +402,8 @@ export default function TurmaEspecifica() {
                     }}
                     abaAtiva={abaAtiva}
                     setAbaAtiva={setAbaAtiva}
+                    totalAlunos={turmaDetalhe?.resumo.totalAlunos ?? 0}
+                    totalAtividades={turmaDetalhe?.resumo.totalAtividades ?? 0}
                 />
             )}
 
@@ -338,21 +464,30 @@ export default function TurmaEspecifica() {
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
                         <ListaAtividades
-                            onSelecionarAtividade={(ativ: any) => {
-                                setAtividadeSelecionada(ativ);
-                                setAbaAtiva('correcao');
-                            }}
+                            planos={turmaDetalhe?.atividades ?? []}
+                            onSelecionarAtividade={selecionarPlano}
                         />
                     </div>
                 )}
 
                 {abaAtiva === 'correcao' && atividadeSelecionada && (
                     <div className="animate-in fade-in duration-500">
-                        <AtividadeEspecifica
-                            alunos={alunos.slice(0, 4)}
-                            atividadeId={atividadeSelecionada._id}
-                            turmaId={id || ""}
-                        />
+
+                        {carregandoAtividadePlano ? (
+                            <div className="flex justify-center items-center !py-20 text-luna-teal font-medium">
+                                Carregando atividades dos alunos...
+                            </div>
+                        ) : erroAtividadePlano ? (
+                            <div className="text-center text-red-500 !py-10">
+                                {erroAtividadePlano}
+                            </div>
+                        ) : dadosAtividadePlano ? (
+                            <AtividadeEspecifica
+                                alunos={dadosAtividadePlano.alunos}
+                                turmaId={id || ""}
+                            />
+                        ) : null}
+
                     </div>
                 )}
 

@@ -6,7 +6,7 @@ import Button from "../components/escola/button"
 import Input from "../components/escola/input"
 import UploadImagem from "../components/escola/buttonImage"
 import { Check, Circle, IdCard, Eye, EyeClosed, Mail, Building2, Smartphone, UserPen, Calendar } from "lucide-react"
-import { api } from "../services/api"
+import { http } from "../services/api"
 
 function Cadastro() {
     const [nome, setNome] = useState("")
@@ -15,7 +15,7 @@ function Cadastro() {
     const [sobrenome, setSobrenome] = useState("")
     const [telefone, setTelefone] = useState("")
     const [cidade, setCidade] = useState("")
-    const [dtaNascimento, setDtaNascimento] = useState("")
+    const [dataNasc, setDataNasc] = useState("")
     const [senha, setSenha] = useState("")
     const [imagem, setImagem] = useState<File | null>(null)
     const [verSenha, setVerSenha] = useState(false)
@@ -31,33 +31,39 @@ function Cadastro() {
     async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
         setErro(null)
+        if (!imagem) {
+            setErro("A foto de perfil é obrigatória.");
+            return;
+        }
         setCarregando(true)
 
         try {
             const form = new FormData()
 
-            const cpfLimpo = cpf.replace(/\D/g, '')
+            const dadosUsuario = {
+                email,
+                senha
+            }
 
-            // colocar informações do professor
+            const dadosProfessor = {
+                nome,
+                sobrenome,
+                cpf: cpf.replace(/\D/g, ""),
+                dataNasc,
+                cidade,
+                telefone: telefone.replace(/\D/g, "")
+            }
 
-            // form.append("dadosEscola[nome]", nome)
-            // form.append("dadosEscola[cpf]", cnpjLimpo)
-            // form.append("dadosEscola[telefone]", telefone)
+            form.append("dadosUsuario", JSON.stringify(dadosUsuario))
+            form.append("dadosProfessor", JSON.stringify(dadosProfessor))
 
-            // form.append("dadosEscola[endereco][rua]", rua)
-            // form.append("dadosEscola[endereco][bairro]", bairro)
-            // form.append("dadosEscola[endereco][cidade]", cidade)
+            if (imagem) {
+                form.append("foto", imagem)
+            }
 
-            // form.append("dadosUsuario[email]", email)
-            // form.append("dadosUsuario[senha]", senha)
+            await http.post("/professores", form);
 
-            if (imagem) form.append("foto", imagem)
-
-            await api.post("/escolas", form, {
-                headers: { "Content-Type": "multipart/form-data" }
-            })
-
-            alert("Escola cadastrada com sucesso!")
+            alert("Professor cadastrado com sucesso!")
             navigate("/")
         } catch (err) {
             const erroAxios = err as AxiosError<{ erro?: string; detalhes?: string }>
@@ -127,7 +133,15 @@ function Cadastro() {
                         </div>
 
                         <div className={campo}>
-                            <Input id="cpf" label="CPF" type="text" placeholder="000.000.000-00" value={cpf} onChange={(e) => setCpf(e.target.value)} required />
+                            <Input
+                                id="cpf"
+                                label="CPF"
+                                type="text"
+                                placeholder="000.000.000-00"
+                                value={cpf}
+                                onChange={(e) => setCpf(e.target.value)}
+                                required
+                            />
                             <IdCard className={icone} />
                         </div>
 
@@ -142,7 +156,14 @@ function Cadastro() {
                         </div>
 
                         <div className={campo}>
-                            <Input id="dtaNascimento" label="Data de Nascimento" type="text" placeholder="00/00/0000" value={dtaNascimento} onChange={(e) => setDtaNascimento(e.target.value)} required />
+                            <Input
+                                id="dataNasc"
+                                label="Data de Nascimento"
+                                type="date"
+                                value={dataNasc}
+                                onChange={(e) => setDataNasc(e.target.value)}
+                                required
+                            />
                             <Calendar className={icone} />
                         </div>
 

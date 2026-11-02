@@ -5,23 +5,23 @@ import InfoHeader from "../../components/escola/InfoHeader";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import SearchActionBar from "../../components/escola/SearchActionBar";
 import Table from "../../components/escola/TableInformations";
-import { api } from "../../services/api";
+import { http } from "../../services/api";
 import ModalTurma from "../modals/ModalTurmas";
 import Input from "../../components/escola/input";
 import ModalDelete from "../modals/ModalDelete";
 import EditarTurma from "../../components/professor/EditarTurma";
+import { isAxiosError } from "axios";
 
 interface Turma {
   _id: string;
   nome: string;
-  professorId?: {
-    _id: string;
-    nome: string;
-    sobrenome: string;
+  quantidadeAlunos: number;
+  atividades: {
+    total: number;
+    feitas: number;
+    pendentes: number;
+    progresso: number;
   };
-  qtdAlunos: number;
-  pendentes: number | null;
-  progresso: number;
 }
 
 export default function CadastroTurmas() {
@@ -34,6 +34,7 @@ export default function CadastroTurmas() {
   const [modalDeleteOpen, setModalDeleteOpen] = useState(false);
   const [modalEditarOpen, setModalEditarOpen] = useState(false);
   const [turmaSelecionada, setTurmaSelecionada] = useState<Turma | null>(null);
+  const [criandoTurma, setCriandoTurma] = useState(false);
 
   const [paginaAtual, setPaginaAtual] = useState(1);
   const itensPorPagina = 4;
@@ -41,8 +42,7 @@ export default function CadastroTurmas() {
   const linkDeConvite = "https://sua-plataforma.com/turma-3anoA-luna";
 
   const turmasFiltradas = turmas.filter((t) =>
-    t.nome.toLowerCase().includes(busca.toLowerCase()) ||
-    (t.professorId?.nome || "").toLowerCase().includes(busca.toLocaleUpperCase())
+    t.nome.toLowerCase().includes(busca.toLowerCase())
   );
 
   const totalPaginas = Math.ceil(turmasFiltradas.length / itensPorPagina);
@@ -53,10 +53,12 @@ export default function CadastroTurmas() {
   const carregarTurmas = async () => {
     try {
       setIsLoading(true);
-      const response = await api.getTurmas() as { data: Turma[] };
+
+      const response = await http.get<Turma[]>("/turmas?formato=completo");
+
       setTurmas(response.data);
     } catch (error) {
-      console.error("Erro ao carregar Turmas", error);
+      console.error("Erro ao carregar turmas:", error);
     } finally {
       setIsLoading(false);
     }
@@ -81,7 +83,7 @@ export default function CadastroTurmas() {
     )
   }
 
-  const criarTurma = () => {
+  const criarTurma = async () => {
     const nome = nomeTurma.trim();
 
     if (!nome) {
@@ -89,47 +91,106 @@ export default function CadastroTurmas() {
       return;
     }
 
-    // Cria um objeto no mesmo formato das turmas existentes
-    const novaTurma: Turma = {
-      _id: crypto.randomUUID(),
-      nome: nome,
-      qtdAlunos: 0,
-      pendentes: 0,
-      progresso: 0,
-    };
+    try {
+      setCriandoTurma(true);
 
-    // Adiciona a nova turma à lista
-    setTurmas((turmasAtuais) => [...turmasAtuais, novaTurma]);
+      const response = await http.post("/turmas", {
+        dadosTurma: {
+          nome,
+        },
+      });
 
-    // Limpa o campo e fecha o modal
-    setNomeTurma("");
-    setModalAberto(false);
+      const turmaCriada = response.data.turma;
 
-    // Volta à primeira página para facilitar a visualização
-    setPaginaAtual(1);
-    setBusca("");
+      const novaTurma: Turma = {
+        _id: turmaCriada._id,
+        nome: turmaCriada.nome,
+        quantidadeAlunos: 0,
+        atividades: {
+          total: 0,
+          feitas: 0,
+          pendentes: 0,
+          progresso: 0,
+        },
+      };
 
-    alert("Turma criada com sucesso!");
+      setTurmas((turmasAtuais) => [
+        ...turmasAtuais,
+        novaTurma,
+      ]);
+
+      setNomeTurma("");
+      setModalAberto(false);
+      setPaginaAtual(1);
+      setBusca("");
+
+      alert(response.data.mensagem);
+
+    } catch (error) {
+      console.error("Erro ao cadastrar turma:", error);
+
+      const mensagem = isAxiosError(error)
+        ? error.response?.data?.erro
+        : undefined;
+
+      alert(mensagem || "Não foi possível cadastrar a turma.");
+
+    } finally {
+      setCriandoTurma(false);
+    }
   };
 
   async function handleDeletar() {
     if (!turmaSelecionada) return;
 
-    setTurmas((prev) => prev.filter((t) => t._id !== turmaSelecionada._id));
-    setModalDeleteOpen(false);
+    const turmaId = turmaSelecionada._id;
 
     try {
-      await api.deleteTurma(turmaSelecionada._id);
+      const response = await http.delete<{ mensagem: string }>(
+        `/turmas/${turmaId}`
+      );
+
+      // Atualiza a tabela somente após a confirmação da API
+      setTurmas((prev) =>
+        prev.filter((turma) => turma._id !== turmaId)
+      );
+
+      setModalDeleteOpen(false);
+      setTurmaSelecionada(null);
+
+      alert(response.data.mensagem);
+
     } catch (error) {
       console.error("Erro ao deletar a turma:", error);
+
+      const mensagem = isAxiosError<{ erro?: string }>(error)
+        ? error.response?.data?.erro
+        : undefined;
+
+      alert(mensagem || "Não foi possível excluir a turma.");
     }
   }
 
-  const salvarEdicaoTurma = (id: string, novoNome: string) => {
+  const salvarEdicaoTurma = async (
+    id: string,
+    novoNome: string
+  ): Promise<void> => {
+
+    const response = await http.put<Turma>(`/turmas/${id}`, {
+      dadosTurma: {
+        nome: novoNome,
+      },
+    });
+
+    const turmaAtualizada = response.data;
+
     setTurmas((turmasAtuais) =>
       turmasAtuais.map((turma) =>
         turma._id === id
-          ? { ...turma, nome: novoNome }
+          ? {
+            ...turma,
+            nome: turmaAtualizada.nome,
+          }
           : turma
       )
     );
@@ -164,7 +225,7 @@ export default function CadastroTurmas() {
       render: (row: Turma) => (
         <div className="flex justify-center items-center w-full py-2">
           <span className="inline-flex items-center justify-center min-w-[50px] h-7 px-2.5 rounded-xl font-sans font-medium text-sm bg-[#FFF9F6] border border-[#FAD9CC] text-neutral-800">
-            {row.qtdAlunos}
+            {row.quantidadeAlunos}
           </span>
         </div>
       ),
@@ -178,9 +239,9 @@ export default function CadastroTurmas() {
       accessor: "pendentes",
       render: (row: Turma) => (
         <div className="flex justify-center items-center w-full py-2">
-          {row.pendentes !== null && row.pendentes > 0 ? (
+          {row.atividades.pendentes > 0 ? (
             <span className="inline-flex items-center justify-center min-w-[50px] h-7 px-2.5 rounded-xl font-sans font-semibold text-sm bg-[#FFD7D7] text-[#E05353]">
-              {row.pendentes}
+              {row.atividades.pendentes}
             </span>
           ) : (
             <span className="inline-flex items-center justify-center min-w-[50px] h-7 px-2.5 rounded-xl font-sans font-bold text-sm bg-[#D2EAEF] text-[#005B60]">
@@ -202,11 +263,11 @@ export default function CadastroTurmas() {
           <div className="w-36 bg-[#ECEFF1] rounded-full h-2.5 overflow-hidden">
             <div
               className="bg-[#005B60] h-2.5 rounded-full transition-all duration-300"
-              style={{ width: `${row.progresso}%` }}
+              style={{ width: `${row.atividades.progresso}%` }}
             />
           </div>
           <span className="font-sans font-bold text-sm text-[#005B60] w-10 shrink-0 text-left">
-            {row.progresso}%
+            {row.atividades.progresso}%
           </span>
         </div>
       ),
@@ -377,6 +438,7 @@ export default function CadastroTurmas() {
                 className="flex items-center justify-center w-full !px-8 border-none rounded-lg bg-luna-teal font-sans text-md font-semibold text-white cursor-pointer transition duration-300 ease hover:opacity-90"
                 type="button"
                 onClick={criarTurma}
+                disabled={criandoTurma}
               >
                 Criar
               </button>

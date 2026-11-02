@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import InfoHeaderProfessor from "../../components/professor/InfoHeaderProfessor";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
-import { api } from "../../services/api";
+import { http } from "../../services/api";
 import ControlePaginacao from "../../components/professor/controlePaginacao";
 import { Check, MessagesSquare, X, Send } from "lucide-react";
 
@@ -12,6 +12,7 @@ interface Questao {
     enunciado: string;
     respostaAluno: string;
     correta: boolean;
+    respostaCorreta: string;
 }
 
 interface RespostaAluno {
@@ -28,36 +29,59 @@ interface RespostaAluno {
 
 export default function CorrecaoAtividade() {
     const { atividadeId, alunoId } = useParams();
-    const [respostas, setRespostas] = useState<RespostaAluno[]>([]);
+    const [alunoAtual, setAlunoAtual] = useState<RespostaAluno | null>(null);
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [comentarioTexto, setComentarioTexto] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [searchParams] = useSearchParams();
     const turmaId = searchParams.get("turmaId")
 
-    const questoesPorPagina = 3;
+    const questoesPorPagina = alunoAtual?.questoes.length || 1;
 
     useEffect(() => {
         const buscarRespostas = async () => {
+            console.log("Parâmetros recebidos:", {
+                atividadeId,
+                alunoId
+            });
+            if (!atividadeId) {
+                setIsLoading(false);
+                return;
+            }
+
             try {
                 setIsLoading(true);
-                const res = await api.getRespostasAtividade(
-                    atividadeId as string
+
+                const response = await http.get<RespostaAluno>(
+                    `/atividades/${atividadeId}`
                 );
-                setRespostas(res.data);
+
+                console.log("Retorno da API:", response.data);
+
+                console.log("Comparação dos IDs:", {
+                    alunoRetornado: response.data.alunoId,
+                    alunoDaURL: alunoId
+                });
+
+                if (alunoId && response.data.alunoId !== alunoId) {
+                    throw new Error("A resposta não pertence ao aluno informado.");
+                }
+
+                setAlunoAtual(response.data);
+                setComentarioTexto(response.data.comentarioProfessor ?? "");
+                setPaginaAtual(1);
+
             } catch (erro) {
                 console.error("Erro ao carregar respostas:", erro);
+                setAlunoAtual(null);
+
             } finally {
                 setIsLoading(false);
             }
         };
 
         buscarRespostas();
-    }, [atividadeId]);
-
-    const alunoAtual = alunoId
-        ? respostas.find(resp => resp.alunoId === alunoId)
-        : respostas[0]
+    }, [atividadeId, alunoId]);
 
     const totalPaginas = alunoAtual ? Math.ceil(alunoAtual.questoes.length / questoesPorPagina) : 0;
 
@@ -66,15 +90,32 @@ export default function CorrecaoAtividade() {
         : [];
 
     const lidarComEnvioFeedback = async () => {
-        if (!alunoAtual) return;
+        if (!alunoAtual || !comentarioTexto.trim()) return;
 
         try {
-            await api.enviarFeedback(alunoAtual._id, comentarioTexto.trim());
-            alert("Enviado com sucesso!");
+            await http.patch(
+                `/atividades/${alunoAtual._id}/correcao`,
+                {
+                    comentarioProfessor: comentarioTexto.trim(),
+                }
+            );
+
+            alert("Feedback enviado e correção registrada!");
             setComentarioTexto("");
         } catch (erro) {
-            console.error(erro);
-            alert("Não foi possível enviar o feedback.")
+            console.error("Erro ao enviar feedback:", erro);
+
+            const mensagem = (
+                erro as {
+                    response?: {
+                        data?: {
+                            erro?: string;
+                        };
+                    };
+                }
+            )?.response?.data?.erro;
+
+            alert(mensagem || "Não foi possível enviar o feedback.");
         }
     };
 
@@ -114,7 +155,7 @@ export default function CorrecaoAtividade() {
                         </div>
                     </div>
                 ) :
-                    respostas.length > 0 && alunoAtual ? (
+                    alunoAtual ? (
                         <>
                             <ControlePaginacao
                                 avatarUrl={alunoAtual.avatarUrl}

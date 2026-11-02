@@ -6,28 +6,26 @@ type StatusEntrega = "Entregue" | "Corrigido" | "Pendente";
 interface AlunoBase {
     _id: string;
     nome: string;
-    avatarUrl?: string;
+    cpf: string;
+    urlFotoAluno: string | null;
+    status: StatusEntrega;
+    atividadeId: string | null;
 }
 
 interface AtividadeEspecificaProps {
-    alunos?: AlunoBase[];
-    atividadeId: string;
+    alunos: AlunoBase[];
     turmaId: string;
 }
 
-
-const statusMock: StatusEntrega[] = ["Entregue", "Corrigido", "Corrigido", "Pendente"];
-
-export default function AtividadeEspecifica({ alunos = [], atividadeId, turmaId }: AtividadeEspecificaProps) {
+export default function AtividadeEspecifica({ alunos = [], turmaId }: AtividadeEspecificaProps) {
 
     const navigate = useNavigate();
 
-    const abrirCorrecao = (alunoId: string) => {
-
-        const idSimulado = atividadeId || "1";
+    const abrirCorrecao = (aluno: AlunoBase) => {
+        if (!aluno.atividadeId) return;
 
         navigate(
-            `/professores/correcaoAtividade/${idSimulado}/${alunoId}?turmaId=${turmaId}`
+            `/professores/correcaoAtividade/${aluno.atividadeId}/${aluno._id}?turmaId=${turmaId}`
         );
     };
 
@@ -39,10 +37,11 @@ export default function AtividadeEspecifica({ alunos = [], atividadeId, turmaId 
                 </p>
             )}
 
-            {alunos.map((aluno, index) => {
-                const status = statusMock[index % statusMock.length];
+            {alunos.map((aluno) => {
+                const status = aluno.status;
                 const isPendente = status === "Pendente";
                 const isCorrigido = status === "Corrigido";
+                const podeAbrirCorrecao = aluno.atividadeId !== null;
 
                 return (
                     <div
@@ -52,9 +51,9 @@ export default function AtividadeEspecifica({ alunos = [], atividadeId, turmaId 
                         <div className="absolute left-0 top-0 bottom-0 w-1.5 bg-[#001A72] rounded-l-xl" />
 
                         <div className="flex items-center gap-4 !ml-6">
-                            {aluno.avatarUrl ? (
+                            {aluno.urlFotoAluno ? (
                                 <img
-                                    src={aluno.avatarUrl}
+                                    src={aluno.urlFotoAluno}
                                     alt={aluno.nome}
                                     className="w-12 h-12 rounded-full object-cover shrink-0"
                                 />
@@ -97,10 +96,11 @@ export default function AtividadeEspecifica({ alunos = [], atividadeId, turmaId 
 
                             <button
                                 type="button"
-                                onClick={() => abrirCorrecao(aluno._id)}
-                                className={`w-[115px] h-10 rounded-md font-sans font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center ${isCorrigido
-                                        ? "text-[#005B52] border border-[#005B52] bg-white hover:bg-teal-50/50"
-                                        : "text-white bg-[#005B52] hover:bg-[#004347] border-none shadow-xs"
+                                onClick={() => abrirCorrecao(aluno)}
+                                disabled={!podeAbrirCorrecao}
+                                className={`w-[115px] h-10 rounded-md font-sans font-semibold text-sm transition-colors cursor-pointer flex items-center justify-center disabled:cursor-not-allowed disabled:opacity-50 ${isCorrigido
+                                    ? "text-[#005B52] border border-[#005B52] bg-white hover:bg-teal-50/50"
+                                    : "text-white bg-[#005B52] hover:bg-[#004347] border-none shadow-xs"
                                     }`}
                             >
                                 {isCorrigido ? "Rever" : "Corrigir"}

@@ -7,27 +7,11 @@ import MeuCalendario from "../../components/calendar/MeuCalendario";
 import EventsList from "../../components/escola/EventsInput";
 import ModalEvents from "../modals/ModalEvents";
 import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
-import { api } from "../../services/api";
+import { http } from "../../services/api";
 
 interface Evento {
   description: string;
   date: string;
-}
-
-interface Turma {
-  nome: string
-  letra: string
-  totalAlunos: number
-  totalTarefas: number
-  percentualConcluidas: number
-  tarefasPendentes: number
-}
-
-interface TurmaCard {
-  id: number;
-  nome: string;
-  alunos: number;
-  atividades: number;
 }
 
 interface UserData {
@@ -35,23 +19,20 @@ interface UserData {
   foto?: string;
 }
 
-const TURMAS: TurmaCard[] = [
-  { id: 1, nome: "1º ano A", alunos: 8, atividades: 5 },
-  { id: 2, nome: "2º ano A", alunos: 6, atividades: 4 },
-  { id: 3, nome: "3º ano A", alunos: 5, atividades: 3 },
-];
+interface TurmaAPI {
+  _id: string;
+  nome: string;
+  quantidadeAlunos: number;
+  atividades: {
+    total: number;
+    feitas: number;
+    pendentes: number;
+    progresso: number;
+  };
+}
 
 function Home() {
   const navigate = useNavigate()
-
-  const [turma, setTurma] = useState<Turma>({
-    nome: "2º ano",
-    letra: "A",
-    totalAlunos: 0,
-    totalTarefas: 0,
-    percentualConcluidas: 0,
-    tarefasPendentes: 0,
-  })
 
   const user: UserData = JSON.parse(localStorage.getItem("user") ?? "{}")
   const token = localStorage.getItem("token")
@@ -59,12 +40,23 @@ function Home() {
   const [events, setEvents] = useState<Evento[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [selectedDate, setSelectedDate] = useState<string>("")
+  const [turmas, setTurmas] = useState<TurmaAPI[]>([]);
+
+  const totalAlunos = turmas.reduce(
+    (total, turma) => total + turma.quantidadeAlunos,
+    0
+  );
+
+  const totalPendentes = turmas.reduce(
+    (total, turma) => total + turma.atividades.pendentes,
+    0
+  );
 
   useEffect(() => {
     async function fetchTurma() {
       try {
-        const response = await api.get<Turma>("/professores/turma")
-        setTurma(response.data)
+        const response = await http.get<TurmaAPI[]>("/turmas?formato=completo");
+        setTurmas(response.data);
       } catch {
         console.error("Erro ao carregar turma")
       }
@@ -162,7 +154,7 @@ function Home() {
                     <span className="text-luna-peach">
                       <GraduationCap className="size-[18px] 4xl:size-9" />
                     </span>
-                    {turma.totalAlunos} alunos
+                    {totalAlunos} alunos
                   </p>
 
                   <div className="h-2 w-2 rounded-full bg-luna-peach/60 4xl:h-3.5 4xl:w-3.5"></div>
@@ -171,7 +163,7 @@ function Home() {
                     <span className="text-luna-peach">
                       <Users className="size-[18px] 4xl:size-9" />
                     </span>
-                    {turma.totalTarefas} turmas
+                    {turmas.length} turmas
                   </p>
                 </div>
               </div>
@@ -211,7 +203,8 @@ function Home() {
                         </span>
                       </div>
                       <div className="flex h-5 w-5 items-center justify-center rounded-full bg-luna-peach font-sans text-sm font-semibold text-luna-teal 4xl:h-9 4xl:w-9 4xl:text-xl">
-                        {turma.tarefasPendentes}
+                        {totalPendentes}
+                      </div>
                       </div>
                     </div>
                   </div>
@@ -238,11 +231,11 @@ function Home() {
 
             <div className="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-5 4xl:grid-cols-[repeat(auto-fill,minmax(320px,1fr))] 4xl:gap-9">
 
-              {TURMAS.map((turma) => (
+              {turmas.map((turma) => (
                 <div
-                  key={turma.id}
-                  className="flex min-h-52 flex-col rounded-xl bg-white p-5! shadow-md transition-transform duration-200 hover:-translate-y-1 4xl:min-h-88 4xl:rounded-2xl 4xl:p-9!"
-                >
+                   key={turma._id}
+                   className="flex min-h-52 flex-col rounded-xl bg-white p-5! shadow-md transition-transform duration-200 hover:-translate-y-1 4xl:min-h-88 4xl:rounded-2xl 4xl:p-9!"
+                 >   
                   <div className="flex h-13 w-13 items-center justify-center rounded-full bg-luna-teal/25 text-luna-teal 4xl:h-22 4xl:w-22">
                     <Users fill="currentColor" className="size-6 4xl:size-10" />
                   </div>
@@ -257,7 +250,7 @@ function Home() {
                         ALUNOS
                       </span>
                       <span className="mt-1! text-base font-semibold text-luna-teal 4xl:mt-2! 4xl:text-4xl">
-                        {turma.alunos}
+                        {turma.quantidadeAlunos}
                       </span>
                     </div>
 
@@ -266,15 +259,17 @@ function Home() {
                         ATIVIDADES
                       </span>
                       <span className="mt-1! text-base font-semibold text-luna-teal 4xl:mt-2! 4xl:text-4xl">
-                        {turma.atividades}
+                        {turma.atividades.total}
                       </span>
                     </div>
                   </div>
 
                   <button
-                    onClick={() => goTo(`/professores/turmaEspecifica/${turma.id}`)}
+                    onClick={() => goTo(`/professores/turmaEspecifica/${turma._id}`)}
                     className="mt-5! w-full cursor-pointer rounded-lg bg-luna-teal py-2! text-sm font-semibold text-white transition-colors hover:bg-luna-teal/90 4xl:mt-9! 4xl:rounded-xl 4xl:py-4! 4xl:text-2xl"
                   >
+                    Detalhes
+                  </button>
                     Detalhes
                   </button>
                 </div>
