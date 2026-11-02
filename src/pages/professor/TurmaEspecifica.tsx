@@ -6,7 +6,9 @@ import LayoutBaseProf from "../../components/professor/layout/LayoutBaseProf";
 import AdicionaAlunos from "../../components/professor/AdicionaAlunos";
 import Table from "../../components/escola/TableInformations";
 import ConviteAluno from "../../components/professor/ConviteAluno";
-import ListaAtividades from "../../components/professor/ListaAtividades";
+import ListaAtividades, {
+    type PlanoDeAulaTurma
+} from "../../components/professor/ListaAtividades";
 import AtividadeEspecifica from "../../components/professor/AtividadeEspecifica";
 import { http } from "../../services/api";
 
@@ -33,8 +35,36 @@ type TurmaDetalhe = {
         pendentes: number;
     };
     alunos: Aluno[];
-    atividades: unknown[];
+    atividades: PlanoDeAulaTurma[];
 };
+
+type StatusEntrega = "Entregue" | "Corrigido" | "Pendente";
+
+interface AlunoAtividadePlano {
+    _id: string;
+    nome: string;
+    cpf: string;
+    urlFotoAluno: string | null;
+    status: StatusEntrega;
+    atividadeId: string | null;
+}
+
+interface AtividadesPlanoResponse {
+    plano: {
+        _id: string;
+        titulo: string;
+        descricao: string;
+        materia: string;
+        dataAula: string;
+        dataFechamento: string;
+    };
+    resumo: {
+        corrigidas: number;
+        pendentes: number;
+        total: number;
+    };
+    alunos: AlunoAtividadePlano[];
+}
 
 export default function TurmaEspecifica() {
 
@@ -54,6 +84,10 @@ export default function TurmaEspecifica() {
     );
 
     const [atividadeSelecionada, setAtividadeSelecionada] = useState<any>(null);
+    const [dadosAtividadePlano, setDadosAtividadePlano] = useState<AtividadesPlanoResponse | null>(null);
+    const [carregandoAtividadePlano, setCarregandoAtividadePlano] = useState(false);
+    const [erroAtividadePlano, setErroAtividadePlano] = useState("");
+
     const [paginaAtual, setPaginaAtual] = useState(1);
     const itensPorPagina = 4;
     const [isLoading, setIsLoading] = useState(true);
@@ -87,9 +121,27 @@ export default function TurmaEspecifica() {
 
     // Cards quando entra na Atividade Específica (reaproveita a mesma estrutura de cards!)
     const dadosCardsAtividade = [
-        { id: 1, icone: <CheckCircle2 size={24} />, valor: "5", label: "CORRIGIDAS", alerta: false },
-        { id: 2, icone: <BookOpen size={24} />, valor: "2", label: "PENDENTES", alerta: true },
-        { id: 3, icone: <Users size={24} />, valor: "10", label: "ENTREGUES", alerta: false },
+        {
+            id: 1,
+            icone: <CheckCircle2 size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.corrigidas ?? 0),
+            label: "CORRIGIDAS",
+            alerta: false
+        },
+        {
+            id: 2,
+            icone: <BookOpen size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.pendentes ?? 0),
+            label: "PENDENTES",
+            alerta: true
+        },
+        {
+            id: 3,
+            icone: <Users size={24} />,
+            valor: String(dadosAtividadePlano?.resumo.total ?? 0),
+            label: "ENTREGUES",
+            alerta: false
+        },
     ];
 
     const dadosCards = abaAtiva === 'correcao' ? dadosCardsAtividade : dadosCardsTurma;
@@ -119,6 +171,31 @@ export default function TurmaEspecifica() {
 
         carregarTurma();
     }, [id]);
+
+    const selecionarPlano = async (plano: { _id: string; titulo: string }) => {
+        setAtividadeSelecionada(plano);
+        setDadosAtividadePlano(null);
+        setErroAtividadePlano("");
+        setCarregandoAtividadePlano(true);
+        setAbaAtiva("correcao");
+
+        try {
+            const response = await http.get<AtividadesPlanoResponse>(
+                `/atividades/plano/${plano._id}`
+            );
+
+            setDadosAtividadePlano(response.data);
+
+        } catch (error) {
+            console.error("Erro ao carregar atividades do plano:", error);
+            setErroAtividadePlano(
+                "Não foi possível carregar os alunos e suas atividades."
+            );
+
+        } finally {
+            setCarregandoAtividadePlano(false);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -264,7 +341,11 @@ export default function TurmaEspecifica() {
                 <div className="flex flex-col gap-6 w-90">
                     <h2 className="m-0 font-sans font-bold text-4xl text-luna-teal">
                         {abaAtiva === 'correcao'
-                            ? (atividadeSelecionada?.nome || "Soma")
+                            ? (
+                                dadosAtividadePlano?.plano.titulo ||
+                                atividadeSelecionada?.titulo ||
+                                "Atividade"
+                            )
                             : (turmaDetalhe?.nome || "Turma não encontrada")}
                     </h2>
                     <p className="m-0 font-sans font-light">
@@ -383,21 +464,30 @@ export default function TurmaEspecifica() {
                 {abaAtiva === 'atividades' && (
                     <div className="animate-in fade-in duration-500">
                         <ListaAtividades
-                            onSelecionarAtividade={(ativ: any) => {
-                                setAtividadeSelecionada(ativ);
-                                setAbaAtiva('correcao');
-                            }}
+                            planos={turmaDetalhe?.atividades ?? []}
+                            onSelecionarAtividade={selecionarPlano}
                         />
                     </div>
                 )}
 
                 {abaAtiva === 'correcao' && atividadeSelecionada && (
                     <div className="animate-in fade-in duration-500">
-                        <AtividadeEspecifica
-                            alunos={alunos.slice(0, 4)}
-                            atividadeId={atividadeSelecionada._id}
-                            turmaId={id || ""}
-                        />
+
+                        {carregandoAtividadePlano ? (
+                            <div className="flex justify-center items-center !py-20 text-luna-teal font-medium">
+                                Carregando atividades dos alunos...
+                            </div>
+                        ) : erroAtividadePlano ? (
+                            <div className="text-center text-red-500 !py-10">
+                                {erroAtividadePlano}
+                            </div>
+                        ) : dadosAtividadePlano ? (
+                            <AtividadeEspecifica
+                                alunos={dadosAtividadePlano.alunos}
+                                turmaId={id || ""}
+                            />
+                        ) : null}
+
                     </div>
                 )}
 
