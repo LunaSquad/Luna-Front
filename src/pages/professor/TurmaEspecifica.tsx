@@ -75,7 +75,9 @@ export default function TurmaEspecifica() {
     const alunos = turmaDetalhe?.alunos ?? [];
 
     const [modalAberto, setModalAberto] = useState(false);
-    const [setAlunoSelecionado] = useState<Aluno | null>(null);
+    
+    // O erro estava aqui. Adicionado o 'alunoSelecionado' no destructuring do array
+    const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
 
     const [searchParams] = useSearchParams();
 
