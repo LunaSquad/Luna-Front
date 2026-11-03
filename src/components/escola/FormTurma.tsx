@@ -23,7 +23,7 @@ interface FormTurmasProps {
     onSalvo?: () => void
 }
 
-export default function FormTurma({ dados, onClose, onSalvo }: FormTurmasProps) {
+export default function FormTurma({ dados, onSalvo }: FormTurmasProps) {
 
     const [nomeTurma, setNomeTurma] = useState(dados?.nome || "")
     const [professor, setProfessor] = useState(dados?.professorId?._id || dados?.professorId || "")
