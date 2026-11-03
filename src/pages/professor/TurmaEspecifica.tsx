@@ -75,7 +75,7 @@ export default function TurmaEspecifica() {
     const alunos = turmaDetalhe?.alunos ?? [];
 
     const [modalAberto, setModalAberto] = useState(false);
-    const [alunoSelecionado, setAlunoSelecionado] = useState<Aluno | null>(null);
+    const [setAlunoSelecionado] = useState<Aluno | null>(null);
 
     const [searchParams] = useSearchParams();
 
