@@ -85,7 +85,7 @@ function Home() {
   }
 
   const handleDeleteEvent = async (index: number) => {
-    const evento = events[index]
+    // const evento = events[index]
     setEvents(events.filter((_, i) => i !== index))
 
     try {
