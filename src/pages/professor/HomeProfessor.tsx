@@ -142,13 +142,16 @@ function Home() {
 
           <div className="h-auto !p-0 bg-transparent">
             <div className="flex max-w-175 flex-wrap items-center justify-between gap-6 rounded-2xl bg-luna-teal !px-7 !py-6 3xl:max-w-225 4xl:max-w-300 4xl:gap-10 4xl:rounded-3xl 4xl:!px-12 4xl:!py-10">
+
               <div className="flex min-w-45 flex-1 flex-col gap-2.5 4xl:min-w-96 4xl:gap-4">
                 <h2 className="m-0! font-sans text-2xl font-semibold text-white sm:text-3xl 3xl:text-4xl 4xl:text-6xl">
                   Visão <span className="text-luna-peach">geral</span>
                 </h2>
+
                 <p className="m-0! max-w-78 font-sans text-sm font-semibold text-white 3xl:max-w-100 3xl:text-lg 4xl:max-w-150 4xl:text-2xl">
                   Gerencie suas turmas e planos de aula em um único painel.
                 </p>
+
                 <div className="!mt-1 flex flex-wrap items-center gap-4 text-white 4xl:gap-7">
                   <p className="flex items-center gap-1.5 font-sans text-sm 3xl:text-lg 4xl:gap-3 4xl:text-2xl">
                     <span className="text-luna-peach">
@@ -169,6 +172,7 @@ function Home() {
               </div>
 
               <div className="flex w-full flex-col items-center justify-center gap-2.5 sm:w-auto sm:min-w-53 3xl:min-w-72 4xl:min-w-110 4xl:gap-4">
+
                 <button
                   className="flex w-full transform cursor-pointer items-center justify-between gap-3 rounded-xl border-none bg-white !px-4.5 !py-3 transition-all duration-200 ease-in-out hover:-translate-y-1 4xl:gap-5 4xl:rounded-2xl 4xl:!px-7 4xl:!py-5"
                   onClick={() => goTo("/professores/atividades")}
@@ -177,11 +181,17 @@ function Home() {
                     <div className="flex h-7.5 w-7.5 shrink-0 items-center justify-center rounded-sm bg-luna-teal/30 text-luna-teal 4xl:h-13 4xl:w-13">
                       <Plus className="size-[18px] 4xl:size-8" />
                     </div>
+
                     <div className="flex flex-col text-left font-semibold">
-                      <span className="font-sans text-sm text-luna-teal 3xl:text-base 4xl:text-2xl">Adicionar atividade</span>
-                      <span className="font-sans text-xs font-medium text-luna-teal/60 3xl:text-sm 4xl:text-lg">Crie uma nova tarefa para a turma</span>
+                      <span className="font-sans text-sm text-luna-teal 3xl:text-base 4xl:text-2xl">
+                        Adicionar atividade
+                      </span>
+                      <span className="font-sans text-xs font-medium text-luna-teal/60 3xl:text-sm 4xl:text-lg">
+                        Crie uma nova tarefa para a turma
+                      </span>
                     </div>
                   </div>
+
                   <ChevronRight className="size-[18px] shrink-0 4xl:size-8" color="#005A63" />
                 </button>
 
@@ -193,6 +203,7 @@ function Home() {
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm bg-luna-peach/30 text-luna-peach 4xl:h-13 4xl:w-13">
                       <Clock className="size-[18px] 4xl:size-8" />
                     </div>
+
                     <div className="flex items-center justify-center gap-6 4xl:gap-10">
                       <div className="flex flex-col text-left font-semibold">
                         <span className="font-sans text-sm text-luna-peach 3xl:text-base 4xl:text-2xl">
@@ -202,14 +213,16 @@ function Home() {
                           Atividades para revisar hoje
                         </span>
                       </div>
+
                       <div className="flex h-5 w-5 items-center justify-center rounded-full bg-luna-peach font-sans text-sm font-semibold text-luna-teal 4xl:h-9 4xl:w-9 4xl:text-xl">
                         {totalPendentes}
                       </div>
-                      </div>
                     </div>
                   </div>
+
                   <ChevronRight className="size-[18px] shrink-0 4xl:size-8" color="rgba(255,221,210,0.54)" />
                 </button>
+
               </div>
             </div>
           </div>
@@ -233,9 +246,9 @@ function Home() {
 
               {turmas.map((turma) => (
                 <div
-                   key={turma._id}
-                   className="flex min-h-52 flex-col rounded-xl bg-white p-5! shadow-md transition-transform duration-200 hover:-translate-y-1 4xl:min-h-88 4xl:rounded-2xl 4xl:p-9!"
-                 >   
+                  key={turma._id}
+                  className="flex min-h-52 flex-col rounded-xl bg-white p-5! shadow-md transition-transform duration-200 hover:-translate-y-1 4xl:min-h-88 4xl:rounded-2xl 4xl:p-9!"
+                >
                   <div className="flex h-13 w-13 items-center justify-center rounded-full bg-luna-teal/25 text-luna-teal 4xl:h-22 4xl:w-22">
                     <Users fill="currentColor" className="size-6 4xl:size-10" />
                   </div>
@@ -270,14 +283,11 @@ function Home() {
                   >
                     Detalhes
                   </button>
-                    Detalhes
-                  </button>
                 </div>
               ))}
 
             </div>
           </div>
-
         </div>
 
         <div className="grid w-full grid-cols-1 gap-2.5 md:grid-cols-2 lg:w-80 lg:shrink-0 lg:grid-cols-1 xl:w-87.5 min-[1600px]:w-100 3xl:w-120 4xl:w-170 4xl:gap-5">
