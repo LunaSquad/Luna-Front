@@ -10,7 +10,7 @@ interface FormProfessoresProps {
     onSalvo?: () => void
 }
 
-export default function FormProfessores({ dados, onClose, onSalvo }: FormProfessoresProps) {
+export default function FormProfessores({ dados, onSalvo }: FormProfessoresProps) {
 
     const [nome, setNome] = useState(dados?.nome || "")
     const [sobrenome, setSobrenome] = useState(dados?.sobrenome || "")
