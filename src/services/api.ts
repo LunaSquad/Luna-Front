@@ -249,7 +249,15 @@ http.interceptors.request.use((config) => {
 
 // --- API ---
 
+// --- API ---
+
 export const api = {
+  // Wrappers genéricos do Axios para contornar o erro do TypeScript
+  get: (url: string, config?: any) => http.get(url, config),
+  post: (url: string, data?: any, config?: any) => http.post(url, data, config),
+  put: (url: string, data?: any, config?: any) => http.put(url, data, config),
+  delete: (url: string, config?: any) => http.delete(url, config),
+
   getTurmas: async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
