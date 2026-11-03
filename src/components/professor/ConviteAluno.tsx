@@ -10,7 +10,7 @@ interface ConviteAlunoProps {
 
 export default function ConviteAluno({ isOpen, onClose, inviteLink }: ConviteAlunoProps) {
     const [copiado, setCopiado] = useState(false);
-    const [nomeTurma, setNomeTurma] = useState("");
+    const [nomeTurma] = useState("");
 
     if (!isOpen) return null;
 
