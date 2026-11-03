@@ -10,7 +10,7 @@ interface FormAlunosProps {
     onSalvo?: () => void
 }
 
-export default function FormAlunos({ dados, onClose, onSalvo }: FormAlunosProps) {
+export default function FormAlunos({ dados, onSalvo }: FormAlunosProps) {
 
     const [nome, setNome] = useState(dados?.nome || "")
     const [cpf, setCpf] = useState(dados?.cpf || "")
