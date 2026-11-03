@@ -91,7 +91,7 @@ export default function PlanoAula() {
 
   const [turmas, setTurmas] = useState<Turma[]>([]);
   const [materias, setMaterias] = useState<Materia[]>([]);
-  const [carregandoOpcoes, setCarregandoOpcoes] = useState(true);
+  const [setCarregandoOpcoes] = useState(true);
 
   useEffect(() => {
     async function carregarOpcoes() {
