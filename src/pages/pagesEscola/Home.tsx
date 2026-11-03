@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react"
 import {GraduationCap, Book, Users} from "lucide-react"
 import { useNavigate } from 'react-router-dom';
-import InfoHeader from "../../components/escola/InfoHeader";
+// import InfoHeader from "../../components/escola/InfoHeader";
 import LayoutBase from "../../components/escola/layout/LayoutBase";
 import NavbarHome from "../../components/escola/NavbarHome";
 import foto from "../../assets/escola.jpg"
