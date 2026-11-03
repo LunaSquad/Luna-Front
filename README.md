@@ -35,9 +35,9 @@ O front-end é responsável pela experiência do usuário, oferecendo painéis d
 
 O projeto utiliza uma arquitetura baseada em componentes e páginas, dividindo os fluxos de acordo com o contexto de uso (Escola vs. Professor) para facilitar a manutenção e escalabilidade.
 
-- **Pages:** componentes de nível de rota que representam as telas completas da aplicação, subdivididas entre autenticação (`Login`, `Cadastro`), visão da escola (`pagesEscola`), visão do docente (`professor`) e modais de ação (`modals`)[cite: 1].
-- **Components:** elementos visuais reutilizáveis, formulários, barras de navegação, tabelas, controles de paginação e estruturas de layout (`LayoutBase` e `LayoutBaseProf`)[cite: 1].
-- **Assets:** recursos estáticos, como logotipos e imagens utilizadas na interface[cite: 1].
+- **Pages:** componentes de nível de rota que representam as telas completas da aplicação, subdivididas entre autenticação (`Login`, `Cadastro`), visão da escola (`pagesEscola`), visão do docente (`professor`) e modais de ação (`modals`).
+- **Components:** elementos visuais reutilizáveis, formulários, barras de navegação, tabelas, controles de paginação e estruturas de layout (`LayoutBase` e `LayoutBaseProf`).
+- **Assets:** recursos estáticos, como logotipos e imagens utilizadas na interface.
 
 ## ⚙️ Configuração do ambiente
 
@@ -59,7 +59,7 @@ cd Luna-Front
 
 ### 2. Configurar as variáveis de ambiente
 
-Crie um arquivo `.env` na raiz do projeto com a URL da API do back-end[cite: 1]:
+Crie um arquivo `.env` na raiz do projeto com a URL da API do back-end:
 
 ```env
 VITE_API_URL=http://localhost:4000
@@ -101,15 +101,15 @@ npm run preview
 
 | Contexto | Página / Componente | Descrição |
 |---|---|---|
-| Público | `Login` / `Cadastro` | Entrada de usuários e criação de novas contas[cite: 1] |
-| Escola | `Home` | Painel administrativo principal com calendário e indicadores[cite: 1] |
-| Escola | `Professores` | Listagem, busca e formulário de cadastro de professores[cite: 1] |
-| Escola | `Turmas` | Gerenciamento geral das turmas da instituição[cite: 1] |
-| Escola | `Alunos` | Controle e visualização dos alunos cadastrados[cite: 1] |
-| Professor | `HomeProfessor` | Visão inicial do professor com acesso às suas turmas[cite: 1] |
-| Professor | `CadastroTurmas` / `TurmaEspecifica` | Criação e gerenciamento detalhado de uma turma e seus alunos[cite: 1] |
-| Professor | `AtividadesProfessor` | Listagem e criação de atividades pedagógicas[cite: 1] |
-| Professor | `CorrecaoAtividade` | Visualização e avaliação das entregas das atividades[cite: 1] |
+| Público | `Login` / `Cadastro` | Entrada de usuários e criação de novas contas |
+| Escola | `Home` | Painel administrativo principal com calendário e indicadores |
+| Escola | `Professores` | Listagem, busca e formulário de cadastro de professores |
+| Escola | `Turmas` | Gerenciamento geral das turmas da instituição |
+| Escola | `Alunos` | Controle e visualização dos alunos cadastrados |
+| Professor | `HomeProfessor` | Visão inicial do professor com acesso às suas turmas |
+| Professor | `CadastroTurmas` / `TurmaEspecifica` | Criação e gerenciamento detalhado de uma turma e seus alunos |
+| Professor | `AtividadesProfessor` | Listagem e criação de atividades pedagógicas |
+| Professor | `CorrecaoAtividade` | Visualização e avaliação das entregas das atividades |
 
 ## 📁 Estrutura do projeto
 
